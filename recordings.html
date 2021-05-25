@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- The jQuery library is a prerequisite for all jqSuite products -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- This is the Javascript file of jqGrid -->
+    <script type="text/ecmascript" src="./jquery.jqGrid.min.js"></script>
+    <!-- This is the localization file of the grid controlling messages, labels, etc. -->
+    <script type="text/ecmascript" src="./grid.locale-en.js"></script>
+    <!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <!-- The link to the CSS that the grid needs -->
+    <link rel="stylesheet" type="text/css" media="screen" href="./ui.jqgrid.css" />
+    <meta charset="utf-8" />
+    <title>Vbox reordings</title>
+</head>
+<body>
+
+      <table id="recordingsGrid"></table>
+      <div id="recordingsGridPager"></div>
+  <button id="recordingsExport">Print</button>
+
+      <table id="seriesGrid"></table>
+      <div id="seriesGridPager"></div>
+  <button id="seriesExport">Print</button>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#recordingsGrid").jqGrid({
+                url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+                datatype: "xml",
+                colModel: [
+                    { label: 'ID', name: 'record-id', width: 65, key:true, xmlmap: 'record-id' },
+                    { label: 'Channel', name: 'channel', width: 90, xmlmap: 'channel-name' },
+                    { label: 'Title', name: 'programme-title', width: 180, xmlmap: 'programme-title' },
+                    { label: 'Start', name: 'start', width: 110, xmlmap: '[start]' },
+                    { label: 'Stop', name: 'stop', width: 110, xmlmap: '[stop]' },
+                    { label: 'Description', name: 'programme-desc', width: 180, xmlmap: 'programme-desc' },
+                    { label: 'State', name: 'state', width: 100, xmlmap: 'state' },
+                    { label: 'Error desc', name: 'error-description', width: 100, xmlmap: 'error-description' },
+                    { label: 'Series Id', name: 'series-id', width: 65, key:true, xmlmap: 'series-id' },
+                    { label: 'Size', name: 'filesize', width: 75, xmlmap: 'fileSize' }
+                ],
+                xmlReader: { root:"record-list",
+                    row:"record",
+                    repeatitems:false,
+                    id: "record-id"
+                   },
+                height: 'auto',
+                loadonce: true,
+                rowNum: 50,
+                rowList: [50, 100, 150, 200, 250, 300],
+                pager: '#recordingsGridPager',
+                sortname: 'record-id',
+                viewrecords: true,
+                sortorder: "desc",
+                caption: "Recordings"
+            }).navGrid('#recordingsGridPager', { edit: false, add: false, del: false });
+			$("#recordingsExport").on("click", function(){
+				$("#recordingsGrid").jqGrid("exportToHtml",{
+					includeLabels : true,
+					includeGroupHeader : true,
+					includeFooter: true,
+					autoPrint : false
+				});
+			});
+
+      $("#seriesGrid").jqGrid({
+          url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+          datatype: "xml",
+          colModel: [
+              { label: 'Id', name: 'series-id', width: 65,  xmlmap: '[series-id]' },
+              { label: 'Channel', name: 'channel', width: 90, xmlmap: '[channel]' },
+              { label: 'Next/Last', name: 'current-start', width: 110, xmlmap: 'current-start' },
+              { label: 'Days', name: 'days-in-week', width: 80, xmlmap: 'days-in-week' },
+              { label: 'Start', name: 'start', width: 110, xmlmap: 'start' },
+              { label: 'Stop', name: 'stop', width: 110, xmlmap: 'stop' },
+              { label: 'Series CRID', name: 'crid', width: 100, xmlmap: 'crid' },
+              { label: 'Title', name: 'programme-title', width: 180, xmlmap: 'programme-title' },
+              { label: 'Description', name: 'programme-desc', width: 180, xmlmap: 'programme-desc' },
+              { label: 'Record ID', name: 'record-id', width: 65,  xmlmap: 'schedule-record-id' },
+              { label: 'Lang', name: 'lang', width: 55, xmlmap: 'lang' }
+          ],
+          xmlReader: { root:"record-list",
+              row:"record-series",
+              repeatitems:false
+             },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#seriesGridPager',
+          sortname: 'series-id',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "Series recording schedule"
+      }).navGrid('#seriesGridPager', { edit: false, add: false, del: false });
+$("#seriesExport").on("click", function(){
+  $("#seriesGrid").jqGrid("exportToHtml",{
+    includeLabels : true,
+    includeGroupHeader : true,
+    includeFooter: true,
+    autoPrint : false
+  });
+});
+
+        });
+      </script>
+
+
+</body>
+</html>
