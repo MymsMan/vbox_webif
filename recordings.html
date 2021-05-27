@@ -70,7 +70,7 @@
           url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
           datatype: "xml",
           colModel: [
-              { label: 'Id', name: 'series-id', width: 65,  xmlmap: '[series-id]' },
+              { label: 'Id', name: 'series-id', width: 65,  xmlmap: function(obj) {return $(obj).attr('series-id');} },
               { label: 'Channel', name: 'channel', width: 90, xmlmap: '[channel]' },
               { label: 'Next/Last', name: 'current-start', width: 110, xmlmap: 'current-start' },
               { label: 'Days', name: 'days-in-week', width: 80, xmlmap: 'days-in-week' },
