@@ -20,27 +20,49 @@
       <table id="recordingsGrid"></table>
       <div id="recordingsGridPager"></div>
   <button id="recordingsExport">Print</button>
-
+<br><br>
       <table id="seriesGrid"></table>
       <div id="seriesGridPager"></div>
   <button id="seriesExport">Print</button>
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            //  Set grid defaults
+            jQuery.extend(jQuery.jgrid.defaults, { altRows:true
+              ,responsive:true
+              ,autowidth: true
+              ,sortable: true});
+
+            //  Recordings Grid
             $("#recordingsGrid").jqGrid({
                 url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
                 datatype: "xml",
                 colModel: [
-                    { label: 'ID', name: 'record-id', width: 65, key:true, xmlmap: 'record-id' },
-                    { label: 'Channel', name: 'channel', width: 90, xmlmap: 'channel-name' },
-                    { label: 'Title', name: 'programme-title', width: 180, xmlmap: 'programme-title' },
-                    { label: 'Start', name: 'start', width: 110, xmlmap: '[start]' },
-                    { label: 'Stop', name: 'stop', width: 110, xmlmap: '[stop]' },
-                    { label: 'Description', name: 'programme-desc', width: 180, xmlmap: 'programme-desc' },
-                    { label: 'State', name: 'state', width: 100, xmlmap: 'state' },
-                    { label: 'Error desc', name: 'error-description', width: 100, xmlmap: 'error-description' },
-                    { label: 'Series Id', name: 'series-id', width: 65, key:true, xmlmap: 'series-id' },
-                    { label: 'Size', name: 'filesize', width: 75, xmlmap: 'fileSize' }
+                    { label: 'Id', name: 'record-id', width: 65, key:true, sorttype: "number",
+                      formatter:'integer', formatoptions:{thousandsSeparator: "", defaultValue: ""}, align: 'right',
+                      xmlmap: 'record-id' },
+                    { label: 'Channel', name: 'channel', width: 90,
+                      xmlmap: 'channel-name' },
+                    { label: 'Title', name: 'programme-title', width: 180,
+                      xmlmap: 'programme-title' },
+                    { label: 'Start', name: 'start', width: 110, formatter: fmtDate,
+                      xmlmap: '[start]' },
+                    { label: 'Stop', name: 'stop', width: 110, formatter: fmtDate,
+                      xmlmap: '[stop]' },
+                    { label: 'Description', name: 'programme-desc', width: 180,
+                      xmlmap: 'programme-desc' },
+                    { label: 'State', name: 'state', width: 100,
+                      xmlmap: 'state' },
+                    { label: 'Error desc', name: 'error-description', width: 100,
+                      formatoptions:{defaultValue: "N/A"},
+                      xmlmap: 'error-description' },
+                    { label: 'Series Id', name: 'series-id', width: 65, sorttype: "number",
+                      formatter:'integer', formatoptions:{thousandsSeparator: "", defaultValue: ""}, align: 'right',
+                      xmlmap: 'series-id' },
+                    { label: 'Size', name: 'filesize', width: 85, sorttype: "number",
+                      formatter: fmtSize, formatoptions:{ defaultValue: ""}, align: 'right',
+                      xmlmap: 'fileSize' }
                 ],
                 xmlReader: { root:"record-list",
                     row:"record",
@@ -66,20 +88,33 @@
 				});
 			});
 
+      // Series Grid
       $("#seriesGrid").jqGrid({
           url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
           datatype: "xml",
           colModel: [
-              { label: 'Id', name: 'series-id', width: 65,  xmlmap: function(obj) {return $(obj).attr('series-id');} },
-              { label: 'Channel', name: 'channel', width: 90, xmlmap: '[channel]' },
-              { label: 'Next/Last', name: 'current-start', width: 110, xmlmap: 'current-start' },
-              { label: 'Days', name: 'days-in-week', width: 80, xmlmap: 'days-in-week' },
-              { label: 'Start', name: 'start', width: 110, xmlmap: 'start' },
-              { label: 'Stop', name: 'stop', width: 110, xmlmap: 'stop' },
-              { label: 'Series CRID', name: 'crid', width: 100, xmlmap: 'crid' },
-              { label: 'Title', name: 'programme-title', width: 180, xmlmap: 'programme-title' },
-              { label: 'Description', name: 'programme-desc', width: 180, xmlmap: 'programme-desc' },
-              { label: 'Record ID', name: 'record-id', width: 65,  xmlmap: 'schedule-record-id' },
+              { label: 'Id', name: 'series-id', width: 65, key:true, sorttype: "number",
+                formatter:'integer', formatoptions:{thousandsSeparator: "", defaultValue: ""}, align: 'right',
+                xmlmap: function(obj) {return $(obj).attr('series-id');} },
+              { label: 'Channel', name: 'channel', width: 90,
+                xmlmap: '[channel]' },
+              { label: 'Next/Last', name: 'current-start', width: 110, formatter: fmtDate,
+                xmlmap: 'current-start' },
+              { label: 'Days', name: 'days-in-week', width: 80,
+                xmlmap: 'days-in-week' },
+              { label: 'Start', name: 'start', width: 60, formatter: fmtTime,
+                xmlmap: 'start' },
+              { label: 'Stop', name: 'stop', width: 60, formatter: fmtTime,
+                xmlmap: 'stop' },
+              { label: 'Series CRID', name: 'crid', width: 100,
+                xmlmap: 'crid' },
+              { label: 'Title', name: 'programme-title', width: 180,
+                xmlmap: 'programme-title' },
+              { label: 'Description', name: 'programme-desc', width: 180,
+                xmlmap: 'programme-desc' },
+              { label: 'Record ID', name: 'record-id', width: 65, sorttype: "number",
+                formatter:'integer', formatoptions:{thousandsSeparator: "", defaultValue: ""}, align: 'right',
+                xmlmap: 'schedule-record-id' },
               { label: 'Lang', name: 'lang', width: 55, xmlmap: 'lang' }
           ],
           xmlReader: { root:"record-list",
@@ -91,7 +126,7 @@
           rowNum: 50,
           rowList: [50, 100, 150, 200, 250, 300],
           pager: '#seriesGridPager',
-          sortname: 'series-id',
+          sortname: 'current-start',
           viewrecords: true,
           sortorder: "desc",
           caption: "Series recording schedule"
@@ -105,7 +140,85 @@ $("#seriesExport").on("click", function(){
   });
 });
 
+//end of doc ready function
         });
+
+
+        /**
+         * Format bytes as human-readable text.
+         *
+         * @param bytes Number of bytes.
+         * @param si True to use metric (SI) units, aka powers of 1000. False to use
+         *           binary (IEC), aka powers of 1024.
+         * @param dp Number of decimal places to display.
+         *
+         * @return Formatted string.
+         * https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
+         */
+        function humanFileSize(bytes, si=false, dp=1) {
+          const thresh = si ? 1000 : 1024;
+
+          if (Math.abs(bytes) < thresh) {
+            return bytes + ' B';
+          }
+
+          const units = si
+            ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+            : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+          let u = -1;
+          const r = 10**dp;
+
+          do {
+            bytes /= thresh;
+            ++u;
+          } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+          return bytes.toFixed(dp) + ' ' + units[u];
+        }
+
+        function fmtDate(cellvalue, options, rowObject)
+        {
+            //console.log("fmtDate " + cellvalue);
+            if (typeof cellvalue == 'undefined') {return ""}
+            if (typeof cellvalue.length < 12) {return ""}
+            var Yr = cellvalue.substr(0,4);
+            var Mon = cellvalue.substr(4,2);
+            var Day = cellvalue.substr(6,2);
+            var Hr = cellvalue.substr(8,2);
+            var Min = cellvalue.substr(10,2);
+            var Sec = cellvalue.substr(12,2);
+            var d = new Date(Yr,Mon-1,Day,Hr,Min,Sec)
+            var text = d.toLocaleString({dateStyle: 'short', timeStyle: 'short'});
+            //console.log("fmtDate " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+            return text;
+        }
+
+        function fmtTime(cellvalue, options, rowObject)
+        {
+            //console.log("fmtDate " + cellvalue);
+            if (typeof cellvalue == 'undefined') {return ""}
+            if (typeof cellvalue.length < 12) {return ""}
+            var Yr = cellvalue.substr(0,4);
+            var Mon = cellvalue.substr(4,2);
+            var Day = cellvalue.substr(6,2);
+            var Hr = cellvalue.substr(8,2);
+            var Min = cellvalue.substr(10,2);
+            var Sec = cellvalue.substr(12,2);
+            var d = new Date(Yr,Mon-1,Day,Hr,Min,Sec)
+            var text = d.toLocaleTimeString({dateStyle: 'short', timeStyle: 'short'});
+            //console.log("fmtDate " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+            return text;
+        }
+
+        function fmtSize(cellvalue, options, rowObject)
+        {
+            //console.log("fmtSize " + cellvalue);
+            if (isNaN(cellvalue)) {return ""}
+            var text = humanFileSize(cellvalue);
+            //console.log(cellvalue + " = " + text)
+            return text;
+        }
       </script>
 
 
