@@ -29,13 +29,22 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
+      $("#recordingsExport").hide();
+      $("#seriesExport").hide();
 
       //  Set grid defaults
       jQuery.extend(jQuery.jgrid.defaults, {
         altRows: true,
-      //  responsive: true,
+        responsive: true,
         autowidth: true,
-        sortable: true
+        sortable: true,
+        cmTemplate: {
+          searchoptions: {
+            clearSearch: false,
+            searchOperMenu: false,
+            sopt: ['cn']
+            }
+          }
       });
 
       // Load the recordings list
@@ -99,6 +108,14 @@
                   label: 'State',
                   name: 'state',
                   width: 100,
+                  stype: 'select',
+                  searchoptions:
+                    {value: {'':'',
+                             recorded: 'Recorded',
+                             recording: 'Recording',
+                             scheduled: 'Scheduled',
+                             Error: 'Error'
+                           }},
                   xmlmap: 'state'
                 },
                 {
@@ -152,7 +169,8 @@
               sortorder: "desc",
               caption: "Recordings"
             })
-            .sortGrid('record-id', true, 'desc')
+            .jqGrid('sortGrid','record-id', true, 'desc')
+            .jqGrid('filterToolbar',{searchOperators: true})
             .navGrid('#recordingsGridPager', {
               edit: false,
               add: false,
@@ -275,6 +293,7 @@
               caption: "Series recording schedule"
             })
             .jqGrid('sortGrid', 'current-start', true, 'desc')
+            .jqGrid('filterToolbar',{searchOperators: true})
             .navGrid('#seriesGridPager', {
               edit: false,
               add: false,
