@@ -5,27 +5,31 @@
   <!-- The jQuery library is a prerequisite for all jqSuite products -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <!-- This is the Javascript file of jqGrid -->
-  <script type="text/ecmascript" src="./jquery.jqGrid.min.js"></script>
+  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.4/js/jquery.jqGrid.min.js"></script>
   <!-- This is the localization file of the grid controlling messages, labels, etc. -->
-  <script type="text/ecmascript" src="./grid.locale-en.js"></script>
+  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.4/js/i18n/grid.locale-en.min.js"></script>
   <!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <!-- The link to the CSS that the grid needs -->
-  <link rel="stylesheet" type="text/css" media="screen" href="./ui.jqgrid.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.4/css/ui.jqgrid.min.css" />
+  <!-- Add icon library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <meta charset="utf-8" />
   <title>Vbox reordings</title>
 </head>
 
 <body>
-
+  <div id=loadRecordings hidden><i class="fa fa-refresh fa-spin" style="font-size:16px;color:green"></i>  Loading Recordings</div>
+  <div id=loadChannels hidden><i class="fa fa-refresh fa-spin" style="font-size:16px;color:green"></i>  Loading Channels</div>
+  <div id=loadEPG hidden><i class="fa fa-refresh fa-spin" style="font-size:16px;color:green"></i>  Loading EPG</div>
   <table id="recordingsGrid"></table>
   <div id="recordingsGridPager"></div>
-  <button id="recordingsExport">Print</button>
+  <button id="recordingsExport" hidden>Print</button>
   <br><br>
   <table id="seriesGrid"></table>
   <div id="seriesGridPager"></div>
-  <button id="seriesExport">Print</button>
+  <button id="seriesExport" hidden>Print</button>
 
   <script type="text/javascript">
     $(document).ready(function() {
@@ -42,15 +46,18 @@
           searchoptions: {
             clearSearch: false,
             searchOperMenu: false,
+            editable: true,
             sopt: ['cn']
             }
           }
       });
 
+      $("#loadRecordings").show();
       // Load the recordings list
       $.ajax({
-        url: "https://vbox/cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList",
+        url: "https://vbox/cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
         success: function(result) {
+          $("#loadRecordings").hide();
 
 
           //  Recordings Grid
@@ -114,6 +121,7 @@
                              recorded: 'Recorded',
                              recording: 'Recording',
                              scheduled: 'Scheduled',
+                             External: 'External',
                              Error: 'Error'
                            }},
                   xmlmap: 'state'
@@ -122,9 +130,6 @@
                   label: 'Error desc',
                   name: 'error-description',
                   width: 100,
-                  formatoptions: {
-                    defaultValue: "N/A"
-                  },
                   xmlmap: 'error-description'
                 },
                 {
@@ -151,13 +156,32 @@
                   },
                   align: 'right',
                   xmlmap: 'fileSize'
+                },
+                {
+                  label: 'URL',
+                  name: 'url',
+                  width: 100,
+                  xmlmap: 'url'
+                },
+                {
+                  label: 'File',
+                  name: 'LocalTarget',
+                  width: 100,
+                  xmlmap: 'LocalTarget'
+                },
+                {
+			            label: "Actions",
+                  name: "actions",
+                  width: 60,
+                  search:false,
+                  formatter: fmtRecActions,
                 }
               ],
               xmlReader: {
                 root: "record-list",
                 row: "record",
-                repeatitems: false,
-                id: "record-id"
+                repeatitems: false
+              //  id: "record-id"
               },
               height: 'auto',
               loadonce: true,
@@ -273,8 +297,16 @@
                 {
                   label: 'Lang',
                   name: 'lang',
+                  hidden: true,
                   width: 55,
                   xmlmap: 'lang'
+                },
+                {
+			            label: "Actions",
+                  name: "actions",
+                  width: 60,
+                  search:false,
+                  formatter: fmtSerActions,
                 }
               ],
               xmlReader: {
@@ -405,8 +437,47 @@
       //console.log(cellvalue + " = " + text)
       return text;
     }
-  </script>
 
+    function fmtButton(grid,id,funcName,title,icon,opts = {}){
+      var text = '<div title="##title##" style="float:left;" class="ui-pg-div" id="##funcName##_##id##" onclick="##funcName##(\'##grid##\',##id##);" onmouseover="jQuery(this).addClass(\'ui-state-hover\');" onmouseout="jQuery(this).removeClass(\'ui-state-hover\');"><span class="##icon##"></span></div>';
+      text=text.replace(/##title##/g,title);
+      text=text.replace(/##id##/g,id);
+      text=text.replace(/##funcName##/g,funcName);
+      text=text.replace(/##icon##/g,icon);
+      text=text.replace(/##opts##/g,opts);
+      text=text.replace(/##grid##/g,grid);
+
+      //console.log("fmtButton = " + text)
+      return text;
+    }
+
+    function fmtRecActions(cellvalue, options, rowObject) {
+      //console.log("fmtSize " + cellvalue);
+      var text =  "";
+      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('record-id'),'viewRow','View row details','fa fa-eye','{}')
+      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('record-id'),'delRecord','Delete recording','ui-icon ui-icon-trash','{}')
+
+      //console.log(cellvalue + " = " + text)
+      return text;
+    }
+    function fmtSerActions(cellvalue, options, rowObject) {
+      //console.log("fmtSize " + cellvalue);
+      var text =  "";
+      text +=  fmtButton("#seriesGrid",$(rowObject).attr('series-id'),'viewRow','View row details','fa fa-eye','{}')
+      text +=  fmtButton("#seriesGrid",$(rowObject).attr('series-id'),'delSeries','Cancel series recording','ui-icon ui-icon-trash','{}')
+
+      //console.log(cellvalue + " = " + text)
+      return text;
+    }
+
+    function viewRow(grid, rowid, opts ={}) {
+       $(grid).jqGrid('viewGridRow',rowid,{modal:true,closeOnEscape:true});
+    };
+
+    function delSeries(grid, id, opts ={}) {
+      console.log("delSeries " + id + grid + opts);
+    }
+  </script>
 
 </body>
 
