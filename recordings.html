@@ -42,12 +42,16 @@
         responsive: true,
         autowidth: true,
         sortable: true,
+        colMenu: true,
         cmTemplate: {
           searchoptions: {
+            colmenu: true,
             clearSearch: false,
             searchOperMenu: false,
             editable: true,
-            sopt: ['cn']
+            editrules:{edithidden:true},
+            viewable: true,
+            sopt: ['cn', 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'ni', 'ew', 'en', 'nc']
             }
           }
       });
@@ -55,21 +59,39 @@
       $("#loadRecordings").show();
       // Load the recordings list
       $.ajax({
-        url: "https://vbox/cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
-        success: function(result) {
+        url: "https://../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+        success: function(recordList) {
           $("#loadRecordings").hide();
 
+          // Create unique RowId, use negative for external recordings
+          var extix = 0;
+          var rec, recid, recids, i
+          var records = recordList.getElementsByTagName("record");
+          for (i = 0; i < records.length; i++) {
+              rec = records[i];
+              recids = rec.getElementsByTagName("record-id")
+              if (recids.length == 1) {
+                recid = rec.getElementsByTagName("record-id")[0].childNodes[0].nodeValue;
+              } else  {
+                recid = --extix;
+              }
+              // append RowId elemnent to record
+              rowid = recordList.createElement("rowid");
+              rowix = recordList.createTextNode(recid);
+              rec.appendChild(rowid).appendChild(rowix);
+              //
+          }
 
           //  Recordings Grid
           $("#recordingsGrid").jqGrid({
               //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
               datatype: "xmlstring",
-              datastr: result,
+              datastr: recordList,
               colModel: [{
                   label: 'Id',
                   name: 'record-id',
                   width: 65,
-                  key: true,
+                  key: false,
                   sorttype: "number",
                   formatter: 'integer',
                   formatoptions: {
@@ -79,6 +101,21 @@
                   align: 'right',
                   xmlmap: 'record-id'
                 },
+                {
+                    label: 'RowId',
+                    name: 'rowid',
+                    width: 65,
+                    key: true,
+                    hidden: true,
+                    sorttype: "number",
+                    formatter: 'integer',
+                    formatoptions: {
+                      thousandsSeparator: "",
+                      defaultValue: ""
+                    },
+                    align: 'right',
+                    xmlmap: 'rowid'
+                  },
                 {
                   label: 'Channel',
                   name: 'channel',
@@ -172,6 +209,7 @@
                 {
 			            label: "Actions",
                   name: "actions",
+                  colmenu: false,
                   width: 60,
                   search:false,
                   formatter: fmtRecActions,
@@ -193,14 +231,14 @@
               sortorder: "desc",
               caption: "Recordings"
             })
-            .jqGrid('sortGrid','record-id', true, 'desc')
+            .jqGrid('sortGrid','start', true, 'desc')
             .jqGrid('filterToolbar',{searchOperators: true})
             .navGrid('#recordingsGridPager', {
               edit: false,
               add: false,
               del: false
             });
-          $("#recordingsExport").hide().on("click", function() {
+          $("#recordingsExport").on("click", function() {
             $("#recordingsGrid").jqGrid("exportToHtml", {
               includeLabels: true,
               includeGroupHeader: true,
@@ -213,7 +251,7 @@
           $("#seriesGrid").jqGrid({
               //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
               datatype: "xmlstring",
-              datastr: result,
+              datastr: recordList,
               colModel: [{
                   label: 'Id',
                   name: 'series-id',
@@ -298,6 +336,7 @@
                   label: 'Lang',
                   name: 'lang',
                   hidden: true,
+                  viewable: true,
                   width: 55,
                   xmlmap: 'lang'
                 },
@@ -306,6 +345,7 @@
                   name: "actions",
                   width: 60,
                   search:false,
+                  colmenu: false,
                   formatter: fmtSerActions,
                 }
               ],
@@ -331,7 +371,7 @@
               add: false,
               del: false
             });
-          $("#seriesExport").hide().on("click", function() {
+          $("#seriesExport").on("click", function() {
             $("#seriesGrid").jqGrid("exportToHtml", {
               includeLabels: true,
               includeGroupHeader: true,
@@ -454,8 +494,8 @@
     function fmtRecActions(cellvalue, options, rowObject) {
       //console.log("fmtSize " + cellvalue);
       var text =  "";
-      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('record-id'),'viewRow','View row details','fa fa-eye','{}')
-      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('record-id'),'delRecord','Delete recording','ui-icon ui-icon-trash','{}')
+      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('rowid'),'viewRow','View row details','fa fa-eye','{}')
+      text +=  fmtButton("#recordingsGrid",$(rowObject).attr('rowid'),'delRecord','Delete recording','ui-icon ui-icon-trash','{}')
 
       //console.log(cellvalue + " = " + text)
       return text;
@@ -471,12 +511,17 @@
     }
 
     function viewRow(grid, rowid, opts ={}) {
-       $(grid).jqGrid('viewGridRow',rowid,{modal:true,closeOnEscape:true});
+       $(grid).jqGrid('viewGridRow',rowid,{modal:true,closeOnEscape:true,viewhidden:true});
     };
 
     function delSeries(grid, id, opts ={}) {
       console.log("delSeries " + id + grid + opts);
     }
+
+    function delRecord(grid, id, opts ={}) {
+      console.log("delSeries " + id + grid + opts);
+    }
+
   </script>
 
 </body>
