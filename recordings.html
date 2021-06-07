@@ -44,13 +44,13 @@
         sortable: true,
         colMenu: true,
         cmTemplate: {
+          colmenu: true,
+          editable: false,
+          editrules:{edithidden:true},
+          viewable: true,
           searchoptions: {
-            colmenu: true,
             clearSearch: false,
             searchOperMenu: false,
-            editable: true,
-            editrules:{edithidden:true},
-            viewable: true,
             sopt: ['cn', 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'bw', 'bn', 'in', 'ni', 'ew', 'en', 'nc']
             }
           }
@@ -59,7 +59,7 @@
       $("#loadRecordings").show();
       // Load the recordings list
       $.ajax({
-        url: "https://../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
         success: function(recordList) {
           $("#loadRecordings").hide();
 
@@ -166,6 +166,7 @@
                 {
                   label: 'Error desc',
                   name: 'error-description',
+                  hidden: true,
                   width: 100,
                   xmlmap: 'error-description'
                 },
@@ -197,12 +198,14 @@
                 {
                   label: 'URL',
                   name: 'url',
+                  hidden: true,
                   width: 100,
                   xmlmap: 'url'
                 },
                 {
                   label: 'File',
                   name: 'LocalTarget',
+                  hidden: true,
                   width: 100,
                   xmlmap: 'LocalTarget'
                 },
