@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" encoding="utf-8">
 
 <head>
   <!-- The jQuery library is a prerequisite for all jqSuite products -->
@@ -17,6 +17,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <meta charset="utf-8" />
   <title>Vbox reordings</title>
+  <style>
+  /* .ui-jqdialog-content .form-view-data { */
+  #v_programme-desc, #v_programme-title {
+    white-space : normal;
+  }
+  </style
 </head>
 
 <body>
@@ -63,331 +69,342 @@
         success: function(recordList) {
           $("#loadRecordings").hide();
 
-          // Create unique RowId, use negative for external recordings
-          var extix = 0;
-          var rec, recid, recids, i
-          var records = recordList.getElementsByTagName("record");
-          for (i = 0; i < records.length; i++) {
-              rec = records[i];
-              recids = rec.getElementsByTagName("record-id")
-              if (recids.length == 1) {
-                recid = rec.getElementsByTagName("record-id")[0].childNodes[0].nodeValue;
-              } else  {
-                recid = --extix;
-              }
-              // append RowId elemnent to record
-              rowid = recordList.createElement("rowid");
-              rowix = recordList.createTextNode(recid);
-              rec.appendChild(rowid).appendChild(rowix);
-              //
-          }
+          initRecordingsTable(recordList);
+        },
+        error: function(xhr) {
+          $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
 
-          //  Recordings Grid
-          $("#recordingsGrid").jqGrid({
-              //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
-              datatype: "xmlstring",
-              datastr: recordList,
-              colModel: [{
-                  label: 'Id',
-                  name: 'record-id',
-                  width: 65,
-                  key: false,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'record-id'
-                },
-                {
-                    label: 'RowId',
-                    name: 'rowid',
-                    width: 65,
-                    key: true,
-                    hidden: true,
-                    sorttype: "number",
-                    formatter: 'integer',
-                    formatoptions: {
-                      thousandsSeparator: "",
-                      defaultValue: ""
-                    },
-                    align: 'right',
-                    xmlmap: 'rowid'
-                  },
-                {
-                  label: 'Channel',
-                  name: 'channel',
-                  width: 90,
-                  xmlmap: 'channel-name'
-                },
-                {
-                  label: 'Title',
-                  name: 'programme-title',
-                  width: 180,
-                  xmlmap: 'programme-title'
-                },
-                {
-                  label: 'Start',
-                  name: 'start',
-                  width: 110,
-                  formatter: fmtDate,
-                  xmlmap: '[start]'
-                },
-                {
-                  label: 'Stop',
-                  name: 'stop',
-                  width: 110,
-                  formatter: fmtDate,
-                  xmlmap: '[stop]'
-                },
-                {
-                  label: 'Description',
-                  name: 'programme-desc',
-                  width: 180,
-                  xmlmap: 'programme-desc'
-                },
-                {
-                  label: 'State',
-                  name: 'state',
-                  width: 100,
-                  stype: 'select',
-                  searchoptions:
-                    {value: {'':'',
-                             recorded: 'Recorded',
-                             recording: 'Recording',
-                             scheduled: 'Scheduled',
-                             External: 'External',
-                             Error: 'Error'
-                           }},
-                  xmlmap: 'state'
-                },
-                {
-                  label: 'Error desc',
-                  name: 'error-description',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'error-description'
-                },
-                {
-                  label: 'Series Id',
-                  name: 'series-id',
-                  width: 65,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'series-id'
-                },
-                {
-                  label: 'Size',
-                  name: 'filesize',
-                  width: 85,
-                  sorttype: "number",
-                  formatter: fmtSize,
-                  formatoptions: {
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'fileSize'
-                },
-                {
-                  label: 'URL',
-                  name: 'url',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'url'
-                },
-                {
-                  label: 'File',
-                  name: 'LocalTarget',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'LocalTarget'
-                },
-                {
-			            label: "Actions",
-                  name: "actions",
-                  colmenu: false,
-                  width: 60,
-                  search:false,
-                  formatter: fmtRecActions,
-                }
-              ],
-              xmlReader: {
-                root: "record-list",
-                row: "record",
-                repeatitems: false
-              //  id: "record-id"
-              },
-              height: 'auto',
-              loadonce: true,
-              rowNum: 50,
-              rowList: [50, 100, 150, 200, 250, 300],
-              pager: '#recordingsGridPager',
-              sortname: 'record-id',
-              viewrecords: true,
-              sortorder: "desc",
-              caption: "Recordings"
-            })
-            .jqGrid('sortGrid','start', true, 'desc')
-            .jqGrid('filterToolbar',{searchOperators: true})
-            .navGrid('#recordingsGridPager', {
-              edit: false,
-              add: false,
-              del: false
-            });
-          $("#recordingsExport").on("click", function() {
-            $("#recordingsGrid").jqGrid("exportToHtml", {
-              includeLabels: true,
-              includeGroupHeader: true,
-              includeFooter: true,
-              autoPrint: false
-            });
-          });
-
-          // Series Grid
-          $("#seriesGrid").jqGrid({
-              //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
-              datatype: "xmlstring",
-              datastr: recordList,
-              colModel: [{
-                  label: 'Id',
-                  name: 'series-id',
-                  width: 65,
-                  key: true,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: function(obj) {
-                    return $(obj).attr('series-id');
-                  }
-                },
-                {
-                  label: 'Channel',
-                  name: 'channel',
-                  width: 90,
-                  xmlmap: '[channel]'
-                },
-                {
-                  label: 'Next/Last',
-                  name: 'current-start',
-                  width: 110,
-                  formatter: fmtDate,
-                  xmlmap: 'current-start'
-                },
-                {
-                  label: 'Days',
-                  name: 'days-in-week',
-                  width: 80,
-                  xmlmap: 'days-in-week'
-                },
-                {
-                  label: 'Start',
-                  name: 'start',
-                  width: 60,
-                  formatter: fmtTime,
-                  xmlmap: 'start'
-                },
-                {
-                  label: 'Stop',
-                  name: 'stop',
-                  width: 60,
-                  formatter: fmtTime,
-                  xmlmap: 'stop'
-                },
-                {
-                  label: 'Series CRID',
-                  name: 'crid',
-                  width: 100,
-                  xmlmap: 'crid'
-                },
-                {
-                  label: 'Title',
-                  name: 'programme-title',
-                  width: 180,
-                  xmlmap: 'programme-title'
-                },
-                {
-                  label: 'Description',
-                  name: 'programme-desc',
-                  width: 180,
-                  xmlmap: 'programme-desc'
-                },
-                {
-                  label: 'Record ID',
-                  name: 'record-id',
-                  width: 65,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'schedule-record-id'
-                },
-                {
-                  label: 'Lang',
-                  name: 'lang',
-                  hidden: true,
-                  viewable: true,
-                  width: 55,
-                  xmlmap: 'lang'
-                },
-                {
-			            label: "Actions",
-                  name: "actions",
-                  width: 60,
-                  search:false,
-                  colmenu: false,
-                  formatter: fmtSerActions,
-                }
-              ],
-              xmlReader: {
-                root: "record-list",
-                row: "record-series",
-                repeatitems: false
-              },
-              height: 'auto',
-              loadonce: true,
-              rowNum: 50,
-              rowList: [50, 100, 150, 200, 250, 300],
-              pager: '#seriesGridPager',
-              sortname: 'current-start',
-              viewrecords: true,
-              sortorder: "desc",
-              caption: "Series recording schedule"
-            })
-            .jqGrid('sortGrid', 'current-start', true, 'desc')
-            .jqGrid('filterToolbar',{searchOperators: true})
-            .navGrid('#seriesGridPager', {
-              edit: false,
-              add: false,
-              del: false
-            });
-          $("#seriesExport").on("click", function() {
-            $("#seriesGrid").jqGrid("exportToHtml", {
-              includeLabels: true,
-              includeGroupHeader: true,
-              includeFooter: true,
-              autoPrint: false
-            });
-          });
-          // end load recordings list
+          initRecordingsTable(testRecList);
         }
       });
 
       //end of doc ready function
     });
+
+
+    function initRecordingsTable(recordList) {
+
+      // Create unique RowId, use negative for external recordings
+      var extix = 0;
+      var rec, recid, recids, i
+      var records = recordList.getElementsByTagName("record");
+      for (i = 0; i < records.length; i++) {
+          rec = records[i];
+          recids = rec.getElementsByTagName("record-id")
+          if (recids.length == 1) {
+            recid = rec.getElementsByTagName("record-id")[0].childNodes[0].nodeValue;
+          } else  {
+            recid = --extix;
+          }
+          // append RowId elemnent to record
+          rowid = recordList.createElement("rowid");
+          rowix = recordList.createTextNode(recid);
+          rec.appendChild(rowid).appendChild(rowix);
+          //
+      }
+
+      //  Recordings Grid
+      $("#recordingsGrid").jqGrid({
+          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+          datatype: "xmlstring",
+          datastr: recordList,
+          colModel: [{
+              label: 'Id',
+              name: 'record-id',
+              width: 65,
+              key: false,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'record-id'
+            },
+            {
+                label: 'RowId',
+                name: 'rowid',
+                width: 65,
+                key: true,
+                hidden: true,
+                sorttype: "number",
+                formatter: 'integer',
+                formatoptions: {
+                  thousandsSeparator: "",
+                  defaultValue: ""
+                },
+                align: 'right',
+                xmlmap: 'rowid'
+              },
+            {
+              label: 'Channel',
+              name: 'channel',
+              width: 90,
+              xmlmap: 'channel-name'
+            },
+            {
+              label: 'Title',
+              name: 'programme-title',
+              width: 180,
+              xmlmap: 'programme-title'
+            },
+            {
+              label: 'Start',
+              name: 'start',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[start]'
+            },
+            {
+              label: 'Stop',
+              name: 'stop',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[stop]'
+            },
+            {
+              label: 'Description',
+              name: 'programme-desc',
+              width: 180,
+              xmlmap: 'programme-desc'
+            },
+            {
+              label: 'State',
+              name: 'state',
+              width: 100,
+              stype: 'select',
+              searchoptions:
+                {value: {'':'',
+                         recorded: 'Recorded',
+                         recording: 'Recording',
+                         scheduled: 'Scheduled',
+                         External: 'External',
+                         Error: 'Error'
+                       }},
+              xmlmap: 'state'
+            },
+            {
+              label: 'Error desc',
+              name: 'error-description',
+              hidden: true,
+              width: 100,
+              xmlmap: 'error-description'
+            },
+            {
+              label: 'Series Id',
+              name: 'series-id',
+              width: 65,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'series-id'
+            },
+            {
+              label: 'Size',
+              name: 'filesize',
+              width: 85,
+              sorttype: "number",
+              formatter: fmtSize,
+              formatoptions: {
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'fileSize'
+            },
+            {
+              label: 'URL',
+              name: 'url',
+              hidden: true,
+              width: 100,
+              xmlmap: 'url'
+            },
+            {
+              label: 'File',
+              name: 'LocalTarget',
+              hidden: true,
+              width: 100,
+              xmlmap: 'LocalTarget'
+            },
+            {
+              label: "Actions",
+              name: "actions",
+              colmenu: false,
+              width: 60,
+              search:false,
+              formatter: fmtRecActions,
+            }
+          ],
+          xmlReader: {
+            root: "record-list",
+            row: "record",
+            repeatitems: false
+          //  id: "record-id"
+          },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#recordingsGridPager',
+          sortname: 'record-id',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "Recordings"
+        })
+        .jqGrid('sortGrid','start', true, 'desc')
+        .jqGrid('filterToolbar',{searchOperators: true})
+        .navGrid('#recordingsGridPager', {
+          edit: false,
+          add: false,
+          del: false
+        });
+      $("#recordingsExport").on("click", function() {
+        $("#recordingsGrid").jqGrid("exportToHtml", {
+          includeLabels: true,
+          includeGroupHeader: true,
+          includeFooter: true,
+          autoPrint: false
+        });
+      });
+
+      // Series Grid
+      $("#seriesGrid").jqGrid({
+          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+          datatype: "xmlstring",
+          datastr: recordList,
+          colModel: [{
+              label: 'Id',
+              name: 'series-id',
+              width: 65,
+              key: true,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: function(obj) {
+                return $(obj).attr('series-id');
+              }
+            },
+            {
+              label: 'Channel',
+              name: 'channel',
+              width: 90,
+              xmlmap: '[channel]'
+            },
+            {
+              label: 'Next/Last',
+              name: 'current-start',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: 'current-start'
+            },
+            {
+              label: 'Days',
+              name: 'days-in-week',
+              width: 80,
+              xmlmap: 'days-in-week'
+            },
+            {
+              label: 'Start',
+              name: 'start',
+              width: 60,
+              formatter: fmtTime,
+              xmlmap: 'start'
+            },
+            {
+              label: 'Stop',
+              name: 'stop',
+              width: 60,
+              formatter: fmtTime,
+              xmlmap: 'stop'
+            },
+            {
+              label: 'Series CRID',
+              name: 'crid',
+              width: 100,
+              xmlmap: 'crid'
+            },
+            {
+              label: 'Title',
+              name: 'programme-title',
+              width: 180,
+              xmlmap: 'programme-title'
+            },
+            {
+              label: 'Description',
+              name: 'programme-desc',
+              width: 180,
+              xmlmap: 'programme-desc'
+            },
+            {
+              label: 'Record ID',
+              name: 'record-id',
+              width: 65,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'schedule-record-id'
+            },
+            {
+              label: 'Lang',
+              name: 'lang',
+              hidden: true,
+              viewable: true,
+              width: 55,
+              xmlmap: 'lang'
+            },
+            {
+              label: "Actions",
+              name: "actions",
+              width: 60,
+              search:false,
+              colmenu: false,
+              formatter: fmtSerActions,
+            }
+          ],
+          xmlReader: {
+            root: "record-list",
+            row: "record-series",
+            repeatitems: false
+          },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#seriesGridPager',
+          sortname: 'current-start',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "Series recording schedule"
+        })
+        .jqGrid('sortGrid', 'current-start', true, 'desc')
+        .jqGrid('filterToolbar',{searchOperators: true})
+        .navGrid('#seriesGridPager', {
+          edit: false,
+          add: false,
+          del: false
+        });
+      $("#seriesExport").on("click", function() {
+        $("#seriesGrid").jqGrid("exportToHtml", {
+          includeLabels: true,
+          includeGroupHeader: true,
+          includeFooter: true,
+          autoPrint: false
+        });
+      });
+      // end Init recordings list
+    }
 
 
     /**
@@ -524,6 +541,31 @@
     function delRecord(grid, id, opts ={}) {
       console.log("delSeries " + id + grid + opts);
     }
+
+    var alertIcon = '<i class="ui-icon ui-icon-alert" style="font-size:24px;color:red"></i>';
+
+    var parser = new DOMParser();
+    var testRecList = parser.parseFromString('<?xml version="1.0" encoding="utf-8"?>\
+    <record-list>\
+      <record channel="www.Sky%20Arts.co.un" start="20201229190000 +0000" stop="20201229200000 +0000">\
+        <channel-name>Sky Arts</channel-name>\
+        <programme-title lang="eng">Queen: Live At Milton Keynes</programme-title>\
+        <programme-desc lang="eng">A captivating Freddie Mercury leads Queen in this 1982 concert, filmed live at the National Bowl in Milton Keynes. The band perform a rousing set featuring Flash and Under Pressure. [S]</programme-desc>\
+        <record-id>1323</record-id>\
+        <state>recorded</state>\
+        <url>http://127.0.0.1:55555/NetworkMedia/Queen%2D%20Live%20At%20Milton%20Keynes__Sky%20Arts__29%2D12%2D2020_19%2D00.mpg</url>\
+        <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Queen- Live At Milton Keynes__Sky Arts__29-12-2020_19-00.mpg</LocalTarget>\
+        <fileSize>674701544</fileSize>\
+      </record>\
+      <record-series channel="www.BBC%20ONE%20South.co.un" series-id="19081">\
+        <schedule-record-id>33608</schedule-record-id>\
+        <current-start>20210614010000 +0100</current-start>\
+        <days-in-week>2</days-in-week>\
+        <start>20210524010000 +0100</start>\
+        <stop>20210524022000 +0100</stop>\
+        <try-To-Match-Program-Title-From-Time>1</try-To-Match-Program-Title-From-Time>\
+      </record-series>\
+    </record-list>',"text/xml");
 
   </script>
 
