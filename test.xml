@@ -1,0 +1,213 @@
+var testRecList = '<?xml version="1.0" encoding="utf-8"?>
+<record-list>
+  <record channel="www.Sky%20Arts.co.un" start="20201229190000 +0000" stop="20201229200000 +0000">
+    <channel-name>Sky Arts</channel-name>
+    <programme-title lang="eng">Queen: Live At Milton Keynes</programme-title>
+    <programme-desc lang="eng">A captivating Freddie Mercury leads Queen in this 1982 concert, filmed live at the National Bowl in Milton Keynes. The band perform a rousing set featuring Flash and Under Pressure. [S]</programme-desc>
+    <record-id>1323</record-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/Queen%2D%20Live%20At%20Milton%20Keynes__Sky%20Arts__29%2D12%2D2020_19%2D00.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Queen- Live At Milton Keynes__Sky Arts__29-12-2020_19-00.mpg</LocalTarget>
+    <fileSize>674701544</fileSize>
+  </record>
+  <record channel="www.Sky%20Arts.co.un" start="20201230001500 +0000" stop="20201230020000 +0000">
+    <channel-name>Sky Arts</channel-name>
+    <programme-title lang="eng">Queen: Live At The Rainbow</programme-title>
+    <programme-desc lang="eng">A treat for all Queen fans as Freddie, Brian, John and Roger perform early hits such as Killer Queen and Seven Seas of Rhye at the Rainbow Theatre in London in 1974.</programme-desc>
+    <record-id>1324</record-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/Queen%2D%20Live%20At%20The%20Rainbow__Sky%20Arts__30%2D12%2D2020_00%2D15.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Queen- Live At The Rainbow__Sky Arts__30-12-2020_00-15.mpg</LocalTarget>
+    <fileSize>1178997256</fileSize>
+  </record>
+  <record channel="www.Sky%20Arts.co.un" start="20210108234405 +0000" stop="20210109003000 +0000">
+    <channel-name>Sky Arts</channel-name>
+    <programme-title lang="en-GB">Fleetwood Mac: Live in Boston</programme-title>
+    <programme-desc lang="en-GB">Mick Fleetwood, John McVie, Lindsey Buckingham and Stevie Nicks perform in Boston in 2004, as part of their sensational `Say You Will&apos; tour.</programme-desc>
+    <record-id>1325</record-id>
+    <series-id>1326</series-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/Fleetwood%20Mac%2D%20Live%20in%20Boston__Sky%20Arts__08%2D01%2D2021_23%2D44.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Fleetwood Mac- Live in Boston__Sky Arts__08-01-2021_23-44.mpg</LocalTarget>
+    <fileSize>539415616</fileSize>
+  </record>
+  <record channel="www.Sky%20Arts.co.un" start="20210109003000 +0000" stop="20210109014500 +0000">
+    <channel-name>Sky Arts</channel-name>
+    <programme-title lang="en-GB">Fleetwood Mac: Live in Boston</programme-title>
+    <programme-desc lang="en-GB">Mick Fleetwood, John McVie, Lindsey Buckingham and Stevie Nicks conclude their energetic concert, singing their greatest hits as part of their 2004 `Say You Will&apos; tour.</programme-desc>
+    <record-id>1327</record-id>
+    <series-id>1326</series-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/Fleetwood%20Mac%2D%20Live%20in%20Boston__Sky%20Arts__09%2D01%2D2021_00%2D30.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Fleetwood Mac- Live in Boston__Sky Arts__09-01-2021_00-30.mpg</LocalTarget>
+    <fileSize>942224228</fileSize>
+  </record>
+  <record channel="www.Sky%20Arts.co.un" start="20210109014500 +0000" stop="20210109035000 +0000">
+    <channel-name>Sky Arts</channel-name>
+    <programme-title lang="en">Stevie Nicks: 24 Karat Gold Tour</programme-title>
+    <programme-desc lang="en">Grammy Award-winning singer-songwriter Stevie Nicks performs music from &quot;Buckingham Nicks&quot; as well as hits from Fleetwood Mac and her solo career.</programme-desc>
+    <record-id>1328</record-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/Stevie%20Nicks%2D%2024%20Karat%20Gold%20Tour__Sky%20Arts__09%2D01%2D2021_01%2D45.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/Stevie Nicks- 24 Karat Gold Tour__Sky Arts__09-01-2021_01-45.mpg</LocalTarget>
+    <fileSize>857323428</fileSize>
+  </record>
+  <record channel="www.Channel%205.co.un" start="20210202210000 +0000" stop="20210202220000 +0000">
+    <channel-name>Channel 5</channel-name>
+    <programme-title lang="en-GB">The Drowning</programme-title>
+    <programme-desc lang="en-GB">Jodie uses a private lesson gives Daniel to quiz him about his past. Jodie&apos;s family urge her to accept that her son is dead.</programme-desc>
+    <record-id>1329</record-id>
+    <series-id>1330</series-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/The%20Drowning__Channel%205__02%2D02%2D2021_21%2D00.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/The Drowning__Channel 5__02-02-2021_21-00.mpg</LocalTarget>
+    <fileSize>746736600</fileSize>
+  </record>
+  <record channel="www.Channel%205.co.un" start="20210203210000 +0000" stop="20210203220000 +0000">
+    <channel-name>Channel 5</channel-name>
+    <programme-title lang="en-GB">The Drowning</programme-title>
+    <programme-desc lang="en-GB">Jodie makes a plan with Daniel to source him a passport and flee the country for a fresh start.</programme-desc>
+    <record-id>1331</record-id>
+    <series-id>1330</series-id>
+    <state>recorded</state>
+    <url>http://127.0.0.1:55555/NetworkMedia/The%20Drowning__Channel%205__03%2D02%2D2021_21%2D00.mpg</url>
+    <LocalTarget>/usr/local/bin/vboxUpnp/shared/NetworkMedia/The Drowning__Channel 5__03-02-2021_21-00.mpg</LocalTarget>
+    <fileSize>795846488</fileSize>
+  </record>
+  <record channel="www.BBC%20ONE%20South.co.un" start="20210609100000 +0100" stop="20210609110000 +0100">
+    <channel-name>BBC ONE South</channel-name>
+    <programme-title>Homes Under the Hammer</programme-title>
+    <programme-desc>testing 123</programme-desc>
+    <record-id>35200</record-id>
+    <series-id>17858</series-id>
+    <state>scheduled</state>
+    <encodedTitle>
+      <type>1284</type>
+      <encodedText>486F6D657320556E646572207468652048616D6D6572</encodedText>
+    </encodedTitle>
+    <encodedDescription>
+      <text>
+        <type>1284</type>
+        <encodedText>74657374696E6720313233</encodedText>
+      </text>
+    </encodedDescription>
+  </record>
+  <record channel="www.Channel%204.co.un" start="20210609141000 +0100" stop="20210609150000 +0100">
+    <channel-name>Channel 4</channel-name>
+    <programme-title lang="eng">Countdown</programme-title>
+    <programme-desc lang="eng">Nick Hewer and Rachel Riley host as contestants race against the clock to pit their wits against vowels, consonants and numbers. Gloria Hunniford joins Susie Dent in Dictionary Corner.  [S]</programme-desc>
+    <record-id>35321</record-id>
+    <series-id>439</series-id>
+    <state>scheduled</state>
+    <encodedTitle>
+      <type>0</type>
+      <encodedText>436F756E74646F776E</encodedText>
+    </encodedTitle>
+    <encodedDescription>
+      <text>
+        <type>0</type>
+        <encodedText>4E69636B20486577657220616E642052616368656C2052696C657920686F737420617320636F6E74657374616E7473207261636520616761696E73742074686520636C6F636B20746F20706974207468656972207769747320616761696E737420766F77656C732C20636F6E736F6E616E747320616E64206E756D626572732E20476C6F7269612048756E6E69666F7264206A6F696E732053757369652044656E7420696E2044696374696F6E61727920436F726E65722E20205B535D</encodedText>
+      </text>
+    </encodedDescription>
+  </record>
+  <record channel="www.BBC%20ONE%20South.co.un" start="20210609210000 +0100" stop="20210609220000 +0100">
+    <channel-name>BBC ONE South</channel-name>
+    <programme-title lang="eng">The Great British Sewing Bee</programme-title>
+    <programme-desc lang="eng">9/10. It&apos;s the semi-final, and the sewers go back to the 1940s. They create a pair of Oxford bags, dresses from parachutes and a Dior New Look outfit. Also in HD. [S,AD]</programme-desc>
+    <record-id>29352</record-id>
+    <series-id>423</series-id>
+    <state>scheduled</state>
+    <encodedTitle>
+      <type>0</type>
+      <encodedText>546865204772656174204272697469736820536577696E6720426565</encodedText>
+    </encodedTitle>
+    <encodedDescription>
+      <text>
+        <type>0</type>
+        <encodedText>392F31302E2049742773207468652073656D692D66696E616C2C20616E64207468652073657765727320676F206261636B20746F207468652031393430732E20546865792063726561746520612070616972206F66204F78666F726420626167732C20647265737365732066726F6D207061726163687574657320616E6420612044696F72204E6577204C6F6F6B206F75746669742E20416C736F20696E2048442E205B532C41445D</encodedText>
+      </text>
+    </encodedDescription>
+  </record>
+  <record channel="www.BBC%20ONE%20South.co.un" start="20210614010000 +0100" stop="20210614022000 +0100">
+    <channel-name>BBC ONE South</channel-name>
+    <programme-title lang="eng">Euro 2020 Match Replay: England...</programme-title>
+    <programme-desc lang="eng">...v Croatia. A full replay of England&apos;s first match at this summer&apos;s European Championship, as they take on Group D rivals Croatia at Wembley. Also in HD. [S]</programme-desc>
+    <record-id>33608</record-id>
+    <series-id>19081</series-id>
+    <state>scheduled</state>
+    <encodedTitle>
+      <type>0</type>
+      <encodedText>4575726F2032303230204D61746368205265706C61793A20456E676C616E642E2E2E</encodedText>
+    </encodedTitle>
+    <encodedDescription>
+      <text>
+        <type>0</type>
+        <encodedText>2E2E2E762043726F617469612E20412066756C6C207265706C6179206F6620456E676C616E642773206669727374206D6174636820617420746869732073756D6D65722773204575726F7065616E204368616D70696F6E736869702C20617320746865792074616B65206F6E2047726F7570204420726976616C732043726F617469612061742057656D626C65792E20416C736F20696E2048442E205B535D</encodedText>
+      </text>
+    </encodedDescription>
+  </record>
+  <record-series channel="www.ITV.co.un" series-id="266">
+    <schedule-record-id>11136</schedule-record-id>
+    <current-start>20210513160000 +0100</current-start>
+    <programme-title lang="eng">New: Tipping Point</programme-title>
+    <programme-desc lang="eng">Ben Shephard hosts the quiz show in which four players take on an extraordinary machine in the hope of winning a cash jackpot. [S] S11 Ep7</programme-desc>
+    <crid>/ebs48934</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20TWO.co.un" series-id="272">
+    <schedule-record-id>3379</schedule-record-id>
+    <current-start>20210504180000 +0100</current-start>
+    <programme-title lang="eng">Richard Osman&apos;s House of Games</programme-title>
+    <programme-desc lang="eng">78/100. Nicki Chapman, Vick Hope, Gethin Jones and Tim Vine test their general knowledge skills on this week&apos;s House of Games. Also in HD. [S]</programme-desc>
+    <crid>/m-5V3O</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="417">
+    <schedule-record-id>2627</schedule-record-id>
+    <current-start>20210503171500 +0100</current-start>
+    <programme-title lang="eng">Pointless</programme-title>
+    <programme-desc lang="eng">11/55. The quiz in which contestants try to score as few points as possible by plumbing the depths of their general knowledge to come up with the answers no-one else could think of. Also in HD. [S]</programme-desc>
+    <crid>/m-GKEB</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="421">
+    <current-start>20210505200000 +0100</current-start>
+    <programme-title lang="eng">The Repair Shop</programme-title>
+    <programme-desc lang="eng">2/14. Jay Blades and the team tackle a historic portrait, an engagement ring, an ornate chest from Oman and a toy donkey that links a twin with the brother she lost aged 21. Also in HD. [S,AD]</programme-desc>
+    <crid>/m-GQRG</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="423">
+    <schedule-record-id>29352</schedule-record-id>
+    <current-start>20210609210000 +0100</current-start>
+    <programme-title lang="eng">The Great British Sewing Bee</programme-title>
+    <programme-desc lang="eng">2/10. Summer Week sees Esme and Patrick challenging the sewers to create paperbag shorts, cocktail outfits and button-down sun dresses. Also in HD. [S,AD]</programme-desc>
+    <crid>/m-GPH4</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="429">
+    <schedule-record-id>1508</schedule-record-id>
+    <current-start>20210430220000 +0100</current-start>
+    <programme-title lang="eng">BBC News at Ten</programme-title>
+    <programme-desc lang="eng">The latest national and international news, with reports from BBC correspondents worldwide. Also in HD. [S]</programme-desc>
+    <crid>/b-474WY</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="431">
+    <schedule-record-id>5668</schedule-record-id>
+    <current-start>20210507223500 +0100</current-start>
+    <programme-title lang="eng">South Today</programme-title>
+    <programme-desc lang="eng">The latest news, sport and weather for the South of England. [S]</programme-desc>
+    <crid>/b-3J95MT</crid>
+    <lang>eng</lang>
+  </record-series>
+  <record-series channel="www.BBC%20ONE%20South.co.un" series-id="19081">
+    <schedule-record-id>33608</schedule-record-id>
+    <current-start>20210614010000 +0100</current-start>
+    <days-in-week>2</days-in-week>
+    <start>20210524010000 +0100</start>
+    <stop>20210524022000 +0100</stop>
+    <try-To-Match-Program-Title-From-Time>1</try-To-Match-Program-Title-From-Time>
+  </record-series>
+</record-list>
+  ';
