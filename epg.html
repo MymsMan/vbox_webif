@@ -87,10 +87,10 @@
       $("#loadEPG").show();
       // Load the EPG list
       $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
         success: function(epgList) {
           $("#loadEPG").hide();
-          if (checkVboxResponse(recordList,'#loadEPG',"Load EPG")) {
+          if (checkVboxResponse(epgList,'#loadEPG',"Load EPG")) {
              initEPGTable(epgList);
           }
         },
@@ -103,191 +103,444 @@
 
       //end of doc ready function
     });
+    function initRecordingsTable(recordList) {
 
-
-        function initEPGTable(epgList) {
-
-          // Create unique RowId, use negative for external epg
-          var extix = 0;
-          var rec, recid, recids, i
-          var epgs = epgList.getElementsByTagName("epg");
-          for (i = 0; i < epgs.length; i++) {
-              rec = epgs[i];
-              recids = rec.getElementsByTagName("epg-id")
-              if (recids.length == 1) {
-                recid = rec.getElementsByTagName("epg-id")[0].childNodes[0].nodeValue;
-              } else  {
-                recid = --extix;
-              }
-              // append RowId elemnent to epg
-              rowid = epgList.createElement("rowid");
-              rowix = epgList.createTextNode(recid);
-              rec.appendChild(rowid).appendChild(rowix);
-              //
+      // Create unique RowId, use negative for external recordings
+      var extix = 0;
+      var rec, recid, recids, i
+      var records = recordList.getElementsByTagName("record");
+      for (i = 0; i < records.length; i++) {
+          rec = records[i];
+          recids = rec.getElementsByTagName("record-id")
+          if (recids.length == 1) {
+            recid = rec.getElementsByTagName("record-id")[0].childNodes[0].nodeValue;
+          } else  {
+            recid = --extix;
           }
+          // append RowId elemnent to record
+          rowid = recordList.createElement("rowid");
+          rowix = recordList.createTextNode(recid);
+          rec.appendChild(rowid).appendChild(rowix);
+          //
+      }
 
-          //  epg Grid
-          $("#epgGrid").jqGrid({
-              //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetepgsList',
-              datatype: "xmlstring",
-              datastr: epgList,
-              colModel: [{
-                  label: 'Id',
-                  name: 'epg-id',
-                  width: 65,
-                  key: false,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'epg-id'
-                },
-                {
-                    label: 'RowId',
-                    name: 'rowid',
-                    width: 65,
-                    key: true,
-                    hidden: true,
-                    sorttype: "number",
-                    formatter: 'integer',
-                    formatoptions: {
-                      thousandsSeparator: "",
-                      defaultValue: ""
-                    },
-                    align: 'right',
-                    xmlmap: 'rowid'
-                  },
-                {
-                  label: 'Channel',
-                  name: 'channel',
-                  width: 90,
-                  xmlmap: 'channel-name'
-                },
-                {
-                  label: 'Title',
-                  name: 'programme-title',
-                  width: 180,
-                  xmlmap: 'programme-title'
-                },
-                {
-                  label: 'Start',
-                  name: 'start',
-                  width: 110,
-                  formatter: fmtDate,
-                  xmlmap: '[start]'
-                },
-                {
-                  label: 'Stop',
-                  name: 'stop',
-                  width: 110,
-                  formatter: fmtDate,
-                  xmlmap: '[stop]'
-                },
-                {
-                  label: 'Description',
-                  name: 'programme-desc',
-                  width: 180,
-                  xmlmap: 'programme-desc'
-                },
-                {
-                  label: 'State',
-                  name: 'state',
-                  width: 100,
-                  stype: 'select',
-                  searchoptions:
-                    {value: {'':'',
-                             epged: 'epged',
-                             epging: 'epging',
-                             scheduled: 'Scheduled',
-                             External: 'External',
-                             Error: 'Error'
-                           }},
-                  xmlmap: 'state'
-                },
-                {
-                  label: 'Error desc',
-                  name: 'error-description',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'error-description'
-                },
-                {
-                  label: 'Series Id',
-                  name: 'series-id',
-                  width: 65,
-                  sorttype: "number",
-                  formatter: 'integer',
-                  formatoptions: {
-                    thousandsSeparator: "",
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'series-id'
-                },
-                {
-                  label: 'Size',
-                  name: 'filesize',
-                  width: 85,
-                  sorttype: "number",
-                  formatter: fmtSize,
-                  formatoptions: {
-                    defaultValue: ""
-                  },
-                  align: 'right',
-                  xmlmap: 'fileSize'
-                },
-                {
-                  label: 'URL',
-                  name: 'url',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'url'
-                },
-                {
-                  label: 'File',
-                  name: 'LocalTarget',
-                  hidden: true,
-                  width: 100,
-                  xmlmap: 'LocalTarget'
-                },
-                {
-                  label: "Actions",
-                  name: "actions",
-                  colmenu: false,
-                  width: 60,
-                  search:false,
-                  formatter: fmtRecActions,
-                }
-              ],
-              xmlReader: {
-                root: "epg-list",
-                row: "epg",
-                repeatitems: false
-              //  id: "epg-id"
+      //  Recordings Grid
+      $("#recordingsGrid").jqGrid({
+          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+          datatype: "xmlstring",
+          datastr: recordList,
+          colModel: [{
+              label: 'Id',
+              name: 'record-id',
+              width: 65,
+              key: false,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
               },
-              height: 'auto',
-              loadonce: true,
-              rowNum: 50,
-              rowList: [50, 100, 150, 200, 250, 300],
-              pager: '#epgGridPager',
-              sortname: 'epg-id',
-              viewepgs: true,
-              sortorder: "desc",
-              caption: "epg"
-            })
-            .jqGrid('sortGrid','start', true, 'desc')
-            .jqGrid('filterToolbar',{searchOperators: true})
-            .navGrid('#epgGridPager', {
-              edit: false,
-              add: false,
-              del: false
-            });
+              align: 'right',
+              xmlmap: 'record-id'
+            },
+            {
+                label: 'RowId',
+                name: 'rowid',
+                width: 65,
+                key: true,
+                hidden: true,
+                sorttype: "number",
+                formatter: 'integer',
+                formatoptions: {
+                  thousandsSeparator: "",
+                  defaultValue: ""
+                },
+                align: 'right',
+                xmlmap: 'rowid'
+              },
+            {
+              label: 'Channel',
+              name: 'channel',
+              width: 90,
+              xmlmap: 'channel-name'
+            },
+            {
+              label: 'Title',
+              name: 'programme-title',
+              width: 180,
+              xmlmap: 'programme-title'
+            },
+            {
+              label: 'Start',
+              name: 'start',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[start]'
+            },
+            {
+              label: 'Stop',
+              name: 'stop',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[stop]'
+            },
+            {
+              label: 'Description',
+              name: 'programme-desc',
+              width: 180,
+              xmlmap: 'programme-desc'
+            },
+            {
+              label: 'State',
+              name: 'state',
+              width: 100,
+              stype: 'select',
+              searchoptions:
+                {value: {'':'',
+                         recorded: 'Recorded',
+                         recording: 'Recording',
+                         scheduled: 'Scheduled',
+                         External: 'External',
+                         Error: 'Error'
+                       }},
+              xmlmap: 'state'
+            },
+            {
+              label: 'Error desc',
+              name: 'error-description',
+              hidden: true,
+              width: 100,
+              xmlmap: 'error-description'
+            },
+            {
+              label: 'Series Id',
+              name: 'series-id',
+              width: 65,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'series-id'
+            },
+            {
+              label: 'Size',
+              name: 'filesize',
+              width: 85,
+              sorttype: "number",
+              formatter: fmtSize,
+              formatoptions: {
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'fileSize'
+            },
+            {
+              label: 'URL',
+              name: 'url',
+              hidden: true,
+              width: 100,
+              xmlmap: 'url'
+            },
+            {
+              label: 'File',
+              name: 'LocalTarget',
+              hidden: true,
+              width: 100,
+              xmlmap: 'LocalTarget'
+            },
+            {
+              label: "Actions",
+              name: "actions",
+              colmenu: false,
+              width: 60,
+              search:false,
+              formatter: fmtRecActions,
+            }
+          ],
+          xmlReader: {
+            root: "record-list",
+            row: "record",
+            repeatitems: false
+          //  id: "record-id"
+          },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#recordingsGridPager',
+          sortname: 'record-id',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "Recordings"
+        })
+        .jqGrid('sortGrid','start', true, 'desc')
+        .jqGrid('filterToolbar',{searchOperators: true})
+        .navGrid('#recordingsGridPager', {
+          edit: false,
+          add: false,
+          del: false
+        });
+      $("#recordingsExport").on("click", function() {
+        $("#recordingsGrid").jqGrid("exportToHtml", {
+          includeLabels: true,
+          includeGroupHeader: true,
+          includeFooter: true,
+          autoPrint: false
+        });
+      });
 
-          // end EPG table init
-        }
+      // Series Grid
+      $("#seriesGrid").jqGrid({
+          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
+          datatype: "xmlstring",
+          datastr: recordList,
+          colModel: [{
+              label: 'Id',
+              name: 'series-id',
+              width: 65,
+              key: true,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: function(obj) {
+                return $(obj).attr('series-id');
+              }
+            },
+            {
+              label: 'Channel',
+              name: 'channel',
+              width: 90,
+              xmlmap: '[channel]'
+            },
+            {
+              label: 'Next/Last',
+              name: 'current-start',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: 'current-start'
+            },
+            {
+              label: 'Days',
+              name: 'days-in-week',
+              width: 80,
+              xmlmap: 'days-in-week'
+            },
+            {
+              label: 'Start',
+              name: 'start',
+              width: 60,
+              formatter: fmtTime,
+              xmlmap: 'start'
+            },
+            {
+              label: 'Stop',
+              name: 'stop',
+              width: 60,
+              formatter: fmtTime,
+              xmlmap: 'stop'
+            },
+            {
+              label: 'Series CRID',
+              name: 'crid',
+              width: 100,
+              xmlmap: 'crid'
+            },
+            {
+              label: 'Title',
+              name: 'programme-title',
+              width: 180,
+              xmlmap: 'programme-title'
+            },
+            {
+              label: 'Description',
+              name: 'programme-desc',
+              width: 180,
+              xmlmap: 'programme-desc'
+            },
+            {
+              label: 'Record ID',
+              name: 'record-id',
+              width: 65,
+              sorttype: "number",
+              formatter: 'integer',
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'schedule-record-id'
+            },
+            {
+              label: 'Lang',
+              name: 'lang',
+              hidden: true,
+              viewable: true,
+              width: 55,
+              xmlmap: 'lang'
+            },
+            {
+              label: "Actions",
+              name: "actions",
+              width: 60,
+              search:false,
+              colmenu: false,
+              formatter: fmtSerActions,
+            }
+          ],
+          xmlReader: {
+            root: "record-list",
+            row: "record-series",
+            repeatitems: false
+          },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#seriesGridPager',
+          sortname: 'current-start',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "Series recording schedule"
+        })
+        .jqGrid('sortGrid', 'current-start', true, 'desc')
+        .jqGrid('filterToolbar',{searchOperators: true})
+        .navGrid('#seriesGridPager', {
+          edit: false,
+          add: false,
+          del: false
+        });
+      $("#seriesExport").on("click", function() {
+        $("#seriesGrid").jqGrid("exportToHtml", {
+          includeLabels: true,
+          includeGroupHeader: true,
+          includeFooter: true,
+          autoPrint: false
+        });
+      });
+      // end Init recordings list
+    }
+
+
+    function initEPGTable(epgList) {
+
+      // Create unique RowId, use negative for external epg
+      var extix = 0;
+      var rec, recid, recids, i
+      var epgs = epgList.getElementsByTagName("epg");
+      for (i = 0; i < epgs.length; i++) {
+          rec = epgs[i];
+          recids = rec.getElementsByTagName("epg-id")
+          if (recids.length == 1) {
+            recid = rec.getElementsByTagName("epg-id")[0].childNodes[0].nodeValue;
+          } else  {
+            recid = --extix;
+          }
+          // append RowId elemnent to epg
+          rowid = epgList.createElement("rowid");
+          rowix = epgList.createTextNode(recid);
+          rec.appendChild(rowid).appendChild(rowix);
+          //
+      }
+
+      //  epg Grid
+      $("#epgGrid").jqGrid({
+          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetepgsList',
+          datatype: "xmlstring",
+          datastr: epgList,
+          colModel: [{
+              label: 'Channel',
+              name: 'channel',
+              width: 90,
+              xmlmap: '[channel]'
+            },
+            {
+              label: 'Title',
+              name: 'title',
+              width: 180,
+              xmlmap: 'title'
+            },
+            {
+              label: 'Start',
+              name: 'start',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[start]'
+            },
+            {
+              label: 'Stop',
+              name: 'stop',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: '[stop]'
+            },
+            {
+              label: 'Description',
+              name: 'desc',
+              width: 180,
+              xmlmap: 'desc'
+            },
+            {
+              label: 'Series CRID',
+              name: 'crid',
+              width: 80,
+              xmlmap: 'episode-num'
+            },
+            {
+              label: 'Series Id',
+              name: 'series-id',
+              width: 65,
+              sorttype: "number",
+              formatter: 'integer',
+              hidden: true,
+              formatoptions: {
+                thousandsSeparator: "",
+                defaultValue: ""
+              },
+              align: 'right',
+              xmlmap: 'series-id'
+            },
+            {
+              label: "Actions",
+              name: "actions",
+              colmenu: false,
+              width: 60,
+              search:false,
+              formatter: fmtRecActions,
+            }
+          ],
+          xmlReader: {
+            root: "tv",
+            row: "programme",
+            repeatitems: false
+          //  id: "epg-id"
+          },
+          height: 'auto',
+          loadonce: true,
+          rowNum: 50,
+          rowList: [50, 100, 150, 200, 250, 300],
+          pager: '#epgGridPager',
+          sortname: 'epg-id',
+          viewrecords: true,
+          sortorder: "desc",
+          caption: "EPG"
+        })
+        .jqGrid('sortGrid','start', true, 'asc')
+        .jqGrid('filterToolbar',{searchOperators: true})
+        .navGrid('#epgGridPager', {
+          edit: false,
+          add: false,
+          del: false
+        });
+
+      // end EPG table init
+    }
 
     /* checkVboxResponse
     check XML returned by vbox for non zero error ErrCode
@@ -409,8 +662,8 @@
 
     function fmtRecActions(cellvalue, options, rowObject) {
       //console.log("fmtSize " + cellvalue);
-      var text =  "";
       var rowid=$(rowObject).attr('rowid');
+      var text =  "<div id='msg"+rowid+"' hidden width=150></div>";
       text +=  fmtButton("#recordingsGrid",rowid,'viewRow','View row details','fa fa-eye',{});
       var opts ={};
       var state=$(rowObject).attr('state');
@@ -500,7 +753,12 @@
       });
     }
 
-    var alertIcon = '<i class="ui-icon ui-icon-alert" style="font-size:24px;color:red"></i>';
+    var alertIcon = '<i class="fa fa-exclamation-triangle" style="font-size:16px;color:red"></i>';
+    var chanName = [];
+    var chanIcom = [];
+    var chanLCN = [];
+    var chanURL = [];
+
 
     var parser = new DOMParser();
     var testRecList = parser.parseFromString('<?xml version="1.0" encoding="utf-8"?>\
@@ -524,6 +782,60 @@
         <try-To-Match-Program-Title-From-Time>1</try-To-Match-Program-Title-From-Time>\
       </record-series>\
     </record-list>',"text/xml");
+    var testEPGList = parser.parseFromString('﻿<?xml version="1.0" encoding="utf-8"?>\
+    <!DOCTYPE tv SYSTEM "xmltv.dtd">\
+    <tv generator-info-url="www.vboxcomm.com" generator-info-name="vbox">\
+    	<channel id="www.BBC%20ONE%20South.co.un">\
+    		<display-name>BBC ONE South</display-name>\
+    		<display-name>TV</display-name>\
+    		<display-name>T-GBR-233a10431043</display-name>\
+    		<display-name>Free</display-name>\
+    		<display-name>1</display-name>\
+    		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+    		<url src="http://vbox:55555/BBC%20ONE%20South"/>\
+    	</channel>\
+    	<channel id="www.BBC%20TWO.co.un">\
+    		<display-name>BBC TWO</display-name>\
+    		<display-name>TV</display-name>\
+    		<display-name>T-GBR-233a104310bf</display-name>\
+    		<display-name>Free</display-name>\
+    		<display-name>2</display-name>\
+    		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+    		<url src="http://vbox:55555/BBC%20TWO"/>\
+    	</channel>\
+    	<programme start="20210619175500 +0100" stop="20210619184500 +0100" channel="www.BBC%20ONE%20South.co.un">\
+    		<title lang="eng">Pointless Celebrities</title>\
+    		<desc lang="eng">A comedians edition featuring Sofie Hagen, Jenny Eclair, Cariad Lloyd, Darren Harriott, Nish Kumar, Ed Gamble, Simon Evans and Geoff Norcott. Also in HD. [S]</desc>\
+    		<episode-num system="dd_progid">/b-NNCP0</episode-num>\
+    	</programme>\
+    	<programme start="20210619173000 +0100" stop="20210619183000 +0100" channel="www.BBC%20TWO.co.un">\
+    		<title lang="eng">The Great Northern Garden Build</title>\
+    		<desc lang="eng">With the major construction work well underway, what impact will the pandemic have? Also in HD. [S]</desc>\
+    		<episode-num system="dd_progid">/m-H9JZ/1</episode-num>\
+    	</programme>\
+    </tv>',"text/xml");
+    var testChanList = parser.parseFromString('﻿<?xml version="1.0" encoding="utf-8"?>\
+    <!DOCTYPE tv SYSTEM "xmltv.dtd">\
+    <tv generator-info-url="www.vboxcomm.com" generator-info-name="vbox">\
+    	<channel id="www.BBC%20ONE%20South.co.un">\
+    		<display-name>BBC ONE South</display-name>\
+    		<display-name>TV</display-name>\
+    		<display-name>T-GBR-233a10431043</display-name>\
+    		<display-name>Free</display-name>\
+    		<display-name>1</display-name>\
+    		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+    		<url src="http://vbox:55555/BBC%20ONE%20South"/>\
+    	</channel>\
+    	<channel id="www.BBC%20TWO.co.un">\
+    		<display-name>BBC TWO</display-name>\
+    		<display-name>TV</display-name>\
+    		<display-name>T-GBR-233a104310bf</display-name>\
+    		<display-name>Free</display-name>\
+    		<display-name>2</display-name>\
+    		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+    		<url src="http://vbox:55555/BBC%20TWO"/>\
+    	</channel>\
+    </tv>',"text/xml");
 
   </script>
 
