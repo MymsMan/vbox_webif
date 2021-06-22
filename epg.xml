@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>\
+<!DOCTYPE tv SYSTEM "xmltv.dtd">\
+<tv generator-info-url="www.vboxcomm.com" generator-info-name="vbox">\
+	<channel id="www.BBC%20ONE%20South.co.un">\
+		<display-name>BBC ONE South</display-name>\
+		<display-name>TV</display-name>\
+		<display-name>T-GBR-233a10431043</display-name>\
+		<display-name>Free</display-name>\
+		<display-name>1</display-name>\
+		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+		<url src="http://vbox:55555/BBC%20ONE%20South"/>\
+	</channel>\
+	<channel id="www.BBC%20TWO.co.un">\
+		<display-name>BBC TWO</display-name>\
+		<display-name>TV</display-name>\
+		<display-name>T-GBR-233a104310bf</display-name>\
+		<display-name>Free</display-name>\
+		<display-name>2</display-name>\
+		<icon src="http://vbox:55555/images/tv_icon.jpg"/>\
+		<url src="http://vbox:55555/BBC%20TWO"/>\
+	</channel>\
+	<programme start="20210619175500 +0100" stop="20210619184500 +0100" channel="www.BBC%20ONE%20South.co.un">\
+		<title lang="eng">Pointless Celebrities</title>\
+		<desc lang="eng">A comedians edition featuring Sofie Hagen, Jenny Eclair, Cariad Lloyd, Darren Harriott, Nish Kumar, Ed Gamble, Simon Evans and Geoff Norcott. Also in HD. [S]</desc>\
+		<episode-num system="dd_progid">/b-NNCP0</episode-num>\
+	</programme>\
+	<programme start="20210619173000 +0100" stop="20210619183000 +0100" channel="www.BBC%20TWO.co.un">\
+		<title lang="eng">The Great Northern Garden Build</title>\
+		<desc lang="eng">With the major construction work well underway, what impact will the pandemic have? Also in HD. [S]</desc>\
+		<episode-num system="dd_progid">/m-H9JZ/1</episode-num>\
+	</programme>\
+</tv>\

@@ -67,42 +67,62 @@
           }
       });
 
-      $("#loadRecordings").show();
-      // Load the recordings list
+      $("#loadChannels").show();
+      // Load the Channels list
       $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
-        success: function(recordList) {
-          $("#loadRecordings").hide();
-          if (checkVboxResponse(recordList,'#loadRecordings',"Load Recordings")) {
-             initRecordingsTable(recordList);
-          }
+        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvChannelsList&FromChIndex=FirstChannel&ToChIndex=LastChannel&Externals=YES",
+        success: function(ChannelList) {
+          $("#loadChannels").hide();
+          if (checkVboxResponse(ChannelList,'#loadChannels',"Load Channels")) {
+             initChannelsTable(ChannelList);
+
+              $("#loadRecordings").show();
+              // Load the recordings list
+              $.ajax({
+                url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+                success: function(recordList) {
+                  $("#loadRecordings").hide();
+                  if (checkVboxResponse(recordList,'#loadRecordings',"Load Recordings")) {
+                     initRecordingsTable(recordList);
+                  }
+                },
+                error: function(xhr) {
+                  $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
+
+                  initRecordingsTable(testRecList);
+                }
+              });
+
+              $("#loadEPG").show();
+              // Load the EPG list
+              $.ajax({
+                url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
+                success: function(epgList) {
+                  $("#loadEPG").hide();
+                  if (checkVboxResponse(epgList,'#loadEPG',"Load EPG")) {
+                     initEPGTable(epgList);
+                  }
+                },
+                error: function(xhr) {
+                  $("#loadEPG").html(alertIcon+" Error loading EPG: "+ xhr.status + " - " + xhr.statusText );
+
+                  initEPGTable(testEPGList);
+                }
+              });
+            }
         },
         error: function(xhr) {
-          $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
+          $("#loadChannels").html(alertIcon+" Error loading Channels: "+ xhr.status + " - " + xhr.statusText );
 
+          initChannelsTable(testChanList);
           initRecordingsTable(testRecList);
-        }
-      });
-
-      $("#loadEPG").show();
-      // Load the EPG list
-      $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
-        success: function(epgList) {
-          $("#loadEPG").hide();
-          if (checkVboxResponse(epgList,'#loadEPG',"Load EPG")) {
-             initEPGTable(epgList);
-          }
-        },
-        error: function(xhr) {
-          $("#loadEPG").html(alertIcon+" Error loading EPG: "+ xhr.status + " - " + xhr.statusText );
-
           initEPGTable(testEPGList);
-        }
-      });
 
+        }
+        });
       //end of doc ready function
     });
+
     function initRecordingsTable(recordList) {
 
       // Create unique RowId, use negative for external recordings
@@ -119,7 +139,7 @@
           }
           // append RowId elemnent to record
           rowid = recordList.createElement("rowid");
-          rowix = recordList.createTextNode(recid);
+          rowix = recordList.createTextNode("rec"+recid);
           rec.appendChild(rowid).appendChild(rowix);
           //
       }
@@ -149,13 +169,6 @@
                 width: 65,
                 key: true,
                 hidden: true,
-                sorttype: "number",
-                formatter: 'integer',
-                formatoptions: {
-                  thousandsSeparator: "",
-                  defaultValue: ""
-                },
-                align: 'right',
                 xmlmap: 'rowid'
               },
             {
@@ -174,14 +187,14 @@
               label: 'Start',
               name: 'start',
               width: 110,
-              formatter: fmtDate,
+              formatter: fmtTimeStmp,
               xmlmap: '[start]'
             },
             {
               label: 'Stop',
               name: 'stop',
               width: 110,
-              formatter: fmtDate,
+              formatter: fmtTimeStmp,
               xmlmap: '[stop]'
             },
             {
@@ -323,7 +336,7 @@
               label: 'Next/Last',
               name: 'current-start',
               width: 110,
-              formatter: fmtDate,
+              formatter: fmtTimeStmp,
               xmlmap: 'current-start'
             },
             {
@@ -427,24 +440,44 @@
       // end Init recordings list
     }
 
+    function initChannelsTable(ChannelList) {
+
+      // Create arrays of channel name, icon
+      var extix = 0;
+      var chan, id, dname, name, lcn, type,  icon, url, i
+      var chans = ChannelList.getElementsByTagName("channel");
+      for (i = 0; i < chans.length; i++) {
+          chan  = chans[i];
+          id    = chan.getAttribute('id')
+          dname = chan.getElementsByTagName("display-name");
+          name  = dname[0].childNodes[0].nodeValue;
+          type  = dname[1].childNodes[0].nodeValue;
+          lcn   = dname[4].childNodes[0].nodeValue;
+          icon  = chan.getElementsByTagName("icon")[0].getAttribute('src');
+          url   = chan.getElementsByTagName("url")[0].getAttribute('src');
+          // append  elemnent to arrays
+          chanName[id] = name;
+          chanType[id] = type;
+          chanLCN[id] = lcn;
+          chanIcon[id] = icon;
+          chanURL[id] = url;
+
+      }
+      // end initChannelsTable
+    }
 
     function initEPGTable(epgList) {
 
-      // Create unique RowId, use negative for external epg
+      // Create unique RowId, epgnnnn
       var extix = 0;
       var rec, recid, recids, i
-      var epgs = epgList.getElementsByTagName("epg");
+      var epgs = epgList.getElementsByTagName("programme");
       for (i = 0; i < epgs.length; i++) {
           rec = epgs[i];
-          recids = rec.getElementsByTagName("epg-id")
-          if (recids.length == 1) {
-            recid = rec.getElementsByTagName("epg-id")[0].childNodes[0].nodeValue;
-          } else  {
-            recid = --extix;
-          }
+          recid = ++extix;
           // append RowId elemnent to epg
           rowid = epgList.createElement("rowid");
-          rowix = epgList.createTextNode(recid);
+          rowix = epgList.createTextNode("epg"+recid);
           rec.appendChild(rowid).appendChild(rowix);
           //
       }
@@ -455,10 +488,26 @@
           datatype: "xmlstring",
           datastr: epgList,
           colModel: [{
-              label: 'Channel',
-              name: 'channel',
+              label: 'RowId',
+              name: 'rowid',
+              width: 65,
+              key: true,
+              hidden: true,
+              xmlmap: 'rowid'
+            },
+            {
+              label: 'Channel Id',
+              name: 'channel-id',
+              hidden: true,
               width: 90,
               xmlmap: '[channel]'
+            },
+            {
+              label: 'Channel Name',
+              name: 'channel-name',
+              width: 90,
+              xmlmap: setChanName,
+              //xmlmap: '[channel]'
             },
             {
               label: 'Title',
@@ -470,15 +519,54 @@
               label: 'Start',
               name: 'start',
               width: 110,
+              formatter: fmtTimeStmp,
+              xmlmap: '[start]'
+            },
+            {
+              label: 'Start Date',
+              name: 'start-date',
+              width: 110,
               formatter: fmtDate,
+              xmlmap: function(obj) {
+                return $(obj).attr('start').substr(0, 8);
+              }
+            },
+            {
+              label: 'Start Time',
+              name: 'start-time',
+              width: 110,
+              formatter: fmtTime,
               xmlmap: '[start]'
             },
             {
               label: 'Stop',
               name: 'stop',
               width: 110,
-              formatter: fmtDate,
+              formatter: fmtTimeStmp,
               xmlmap: '[stop]'
+            },
+            {
+              label: 'Stop Date',
+              name: 'stop-date',
+              width: 110,
+              formatter: fmtDate,
+              xmlmap: function(obj) {
+                return $(obj).attr('stop').substr(0, 8);
+              }
+            },
+            {
+              label: 'Stop Time',
+              name: 'stop-time',
+              width: 110,
+              formatter: fmtTime,
+              xmlmap: '[stop]'
+            },
+            {
+              label: 'Duration',
+              name: 'duration',
+              width: 110,
+              xmlmap: setDuration,
+              //xmlmap: '[stop]-[start]'
             },
             {
               label: 'Description',
@@ -512,7 +600,7 @@
               colmenu: false,
               width: 60,
               search:false,
-              formatter: fmtRecActions,
+              formatter: fmtEPGactions,
             }
           ],
           xmlReader: {
@@ -591,8 +679,19 @@
       return bytes.toFixed(dp) + ' ' + units[u];
     }
 
-    function fmtDate(cellvalue, options, rowObject) {
-      //console.log("fmtDate " + cellvalue);
+    function setChanName(rowObject) {
+      var cellvalue = $(rowObject).attr('channel');
+      if (typeof cellvalue == 'undefined') {
+        return "";
+      }
+      if (typeof chanName[cellvalue] == 'undefined') {
+        return "";
+      }
+      return chanName[cellvalue];
+    }
+
+    function fmtTimeStmp(cellvalue, options, rowObject) {
+      //console.log("fmtTimeStmp " + cellvalue);
       if (typeof cellvalue == 'undefined') {
         return ""
       }
@@ -610,12 +709,12 @@
         dateStyle: 'short',
         timeStyle: 'short'
       });
-      //console.log("fmtDate " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+      //console.log("fmtTimeStmp " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
       return text;
     }
 
     function fmtTime(cellvalue, options, rowObject) {
-      //console.log("fmtDate " + cellvalue);
+      //console.log("fmtTimeStmp " + cellvalue);
       if (typeof cellvalue == 'undefined') {
         return ""
       }
@@ -633,7 +732,67 @@
         dateStyle: 'short',
         timeStyle: 'short'
       });
-      //console.log("fmtDate " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+      //console.log("fmtTimeStmp " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+      return text;
+    }
+
+    function setDuration(rowObject) {
+      //console.log("fmtTimeStmp " + cellvalue);
+      if (typeof $(rowObject).attr('stop') == 'undefined') {
+        return ""
+      }
+      if (typeof $(rowObject).attr('start') == 'undefined') {
+        return ""
+      }
+
+      var stoptime = $(rowObject).attr('stop');
+      var Yr  = stoptime.substr(0, 4);
+      var Mon = stoptime.substr(4, 2);
+      var Day = stoptime.substr(6, 2);
+      var Hr  = stoptime.substr(8, 2);
+      var Min = stoptime.substr(10, 2);
+      var Sec = stoptime.substr(12, 2);
+      var stop = new Date(Yr, Mon - 1, Day, Hr, Min, Sec);
+
+      var starttime = $(rowObject).attr('start');
+      Yr  = starttime.substr(0, 4);
+      Mon = starttime.substr(4, 2);
+      Day = starttime.substr(6, 2);
+      Hr  = starttime.substr(8, 2);
+      Min = starttime.substr(10, 2);
+      Sec = starttime.substr(12, 2);
+      var start = new Date(Yr, Mon - 1, Day, Hr, Min, Sec);
+      //var durn = new Date;
+      var durn = new Date(stop -start);
+      var text = durn.toLocaleTimeString({
+        dateStyle: 'short',
+        timeStyle: 'short'
+      });
+      //console.log("fmtTimeStmp " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
+      return text;
+    }
+
+
+    function fmtDate(cellvalue, options, rowObject) {
+      //console.log("fmtDate " + cellvalue);
+      if (typeof cellvalue == 'undefined') {
+        return ""
+      }
+      if (cellvalue.length < 8) {
+        return ""
+      }
+      var Yr = cellvalue.substr(0, 4);
+      var Mon = cellvalue.substr(4, 2);
+      var Day = cellvalue.substr(6, 2);
+      var Hr = 0;
+      var Min = 0;
+      var Sec = 0;
+      var d = new Date(Yr, Mon - 1, Day, Hr, Min, Sec)
+      var text = d.toLocaleDateString({
+        dateStyle: 'short',
+        timeStyle: 'short'
+      });
+      //console.log("fmtTimeStmp " + cellvalue +" "+text+" "+Yr+" "+Mon+" "+Day);
       return text;
     }
 
@@ -648,7 +807,7 @@
     }
 
     function fmtButton(grid,id,funcName,title,icon,opts = {}){
-      var text = '<div title="##title##" style="float:left;" class="ui-pg-div" id="##funcName##_##id##" onclick=\'##funcName##(\"##grid##\",##id##,##opts##);\' onmouseover="jQuery(this).addClass(\'ui-state-hover\');" onmouseout="jQuery(this).removeClass(\'ui-state-hover\');"><span class="##icon##"></span></div>';
+      var text = '<div title="##title##" style="float:left;" class="ui-pg-div" id="##funcName##_##id##" onclick=\'##funcName##(\"##grid##\","##id##",##opts##);\' onmouseover="jQuery(this).addClass(\'ui-state-hover\');" onmouseout="jQuery(this).removeClass(\'ui-state-hover\');"><span class="##icon##"></span></div>';
       text=text.replace(/##title##/g,title);
       text=text.replace(/##id##/g,id);
       text=text.replace(/##funcName##/g,funcName);
@@ -659,6 +818,41 @@
       //console.log("fmtButton = " + text)
       return text;
     }
+
+    function fmtEPGactions(cellvalue, options, rowObject) {
+      //console.log("fmtSize " + cellvalue);
+      //var rowid=$(rowObject).attr('rowid');
+      var rowid=options.rowId;
+      var grid=options.gid;
+      var text =  "<div id='msg"+rowid+"' hidden width=150></div>";
+      text +=  fmtButton("#epgGrid",rowid,'viewRow','View row details','fa fa-eye',{});
+      var opts ={};
+      var state=$(rowObject).attr('state');
+      switch (state) {
+        case "scheduled":
+          if (typeof $(rowObject).attr('series-id') != 'undefined') {
+            // Can't delete series episode, must choose series table
+            return text;
+          }
+        case "recording":
+          opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+rowid;
+          break;
+        case "recorded":
+        case "Error":
+          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID="+rowid;
+          break;
+        case "External":
+          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
+          break;
+        default:
+          return text;
+      }
+      text +=  fmtButton("#epgGrid",rowid,'delRecord','Delete recording','ui-icon ui-icon-trash',opts)
+
+      //console.log(cellvalue + " = " + text)
+      return text;
+    }
+
 
     function fmtRecActions(cellvalue, options, rowObject) {
       //console.log("fmtSize " + cellvalue);
@@ -691,6 +885,7 @@
       //console.log(cellvalue + " = " + text)
       return text;
     }
+
     function fmtSerActions(cellvalue, options, rowObject) {
       //console.log("fmtSize " + cellvalue);
       var id=$(rowObject).attr('series-id')
@@ -755,9 +950,10 @@
 
     var alertIcon = '<i class="fa fa-exclamation-triangle" style="font-size:16px;color:red"></i>';
     var chanName = [];
-    var chanIcom = [];
+    var chanIcon = [];
     var chanLCN = [];
     var chanURL = [];
+    var chanType = [];
 
 
     var parser = new DOMParser();
