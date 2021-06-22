@@ -18,7 +18,8 @@
   <title>Vbox recordings</title>
   <style>
   /* .ui-jqdialog-content .form-view-data { */
-  #v_programme-desc, #v_programme-title {
+  .ui-jqgrids-labels .ui-sortable th,
+  #v_programme-desc, #v_programme-title, #v_desc, #v_title {
     white-space: normal;
   }
   </style>
@@ -50,13 +51,14 @@
       //  Set grid defaults
       jQuery.extend(jQuery.jgrid.defaults, {
         altRows: true,
-        responsive: true,
-        autowidth: true,
+  //      responsive: true,
+  //      autowidth: true,
         sortable: true,
         colMenu: true,
         cmTemplate: {
           colmenu: true,
           editable: false,
+          align: "center",
           editrules:{edithidden:true},
           viewable: true,
           searchoptions: {
@@ -482,127 +484,13 @@
           //
       }
 
+      var epgColModel = colChan.concat(colTitle,colTime,colEPG);
       //  epg Grid
       $("#epgGrid").jqGrid({
           //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetepgsList',
           datatype: "xmlstring",
           datastr: epgList,
-          colModel: [{
-              label: 'RowId',
-              name: 'rowid',
-              width: 65,
-              key: true,
-              hidden: true,
-              xmlmap: 'rowid'
-            },
-            {
-              label: 'Channel Id',
-              name: 'channel-id',
-              hidden: true,
-              width: 90,
-              xmlmap: '[channel]'
-            },
-            {
-              label: 'Channel Name',
-              name: 'channel-name',
-              width: 90,
-              xmlmap: setChanName,
-              //xmlmap: '[channel]'
-            },
-            {
-              label: 'Title',
-              name: 'title',
-              width: 180,
-              xmlmap: 'title'
-            },
-            {
-              label: 'Start',
-              name: 'start',
-              width: 110,
-              formatter: fmtTimeStmp,
-              xmlmap: '[start]'
-            },
-            {
-              label: 'Start Date',
-              name: 'start-date',
-              width: 110,
-              formatter: fmtDate,
-              xmlmap: function(obj) {
-                return $(obj).attr('start').substr(0, 8);
-              }
-            },
-            {
-              label: 'Start Time',
-              name: 'start-time',
-              width: 110,
-              formatter: fmtTime,
-              xmlmap: '[start]'
-            },
-            {
-              label: 'Stop',
-              name: 'stop',
-              width: 110,
-              formatter: fmtTimeStmp,
-              xmlmap: '[stop]'
-            },
-            {
-              label: 'Stop Date',
-              name: 'stop-date',
-              width: 110,
-              formatter: fmtDate,
-              xmlmap: function(obj) {
-                return $(obj).attr('stop').substr(0, 8);
-              }
-            },
-            {
-              label: 'Stop Time',
-              name: 'stop-time',
-              width: 110,
-              formatter: fmtTime,
-              xmlmap: '[stop]'
-            },
-            {
-              label: 'Duration',
-              name: 'duration',
-              width: 110,
-              xmlmap: setDuration,
-              //xmlmap: '[stop]-[start]'
-            },
-            {
-              label: 'Description',
-              name: 'desc',
-              width: 180,
-              xmlmap: 'desc'
-            },
-            {
-              label: 'Series CRID',
-              name: 'crid',
-              width: 80,
-              xmlmap: 'episode-num'
-            },
-            {
-              label: 'Series Id',
-              name: 'series-id',
-              width: 65,
-              sorttype: "number",
-              formatter: 'integer',
-              hidden: true,
-              formatoptions: {
-                thousandsSeparator: "",
-                defaultValue: ""
-              },
-              align: 'right',
-              xmlmap: 'series-id'
-            },
-            {
-              label: "Actions",
-              name: "actions",
-              colmenu: false,
-              width: 60,
-              search:false,
-              formatter: fmtEPGactions,
-            }
-          ],
+          colModel: epgColModel,
           xmlReader: {
             root: "tv",
             row: "programme",
@@ -689,6 +577,52 @@
       }
       return chanName[cellvalue];
     }
+
+    function setChanURL(rowObject) {
+      var cellvalue = $(rowObject).attr('channel');
+      if (typeof cellvalue == 'undefined') {
+        return "";
+      }
+      if (typeof chanURL[cellvalue] == 'undefined') {
+        return "";
+      }
+      return chanURL[cellvalue];
+    }
+
+    function setChanType(rowObject) {
+      var cellvalue = $(rowObject).attr('channel');
+      if (typeof cellvalue == 'undefined') {
+        return "";
+      }
+      if (typeof chanType[cellvalue] == 'undefined') {
+        return "";
+      }
+      return chanType[cellvalue];
+    }
+
+    function setChanIcon(rowObject) {
+      var cellvalue = $(rowObject).attr('channel');
+      if (typeof cellvalue == 'undefined') {
+        return "";
+      }
+      if (typeof chanIcon[cellvalue] == 'undefined') {
+        return "";
+      }
+      var text = "<img src='"+chanIcon[cellvalue]+"' alt='"+chanName[cellvalue]+"' title='"+chanName[cellvalue]+"' width=16 height=16 >";
+      return text;
+    }
+
+    function setChanLCN(rowObject) {
+      var cellvalue = $(rowObject).attr('channel');
+      if (typeof cellvalue == 'undefined') {
+        return "";
+      }
+      if (typeof chanLCN[cellvalue] == 'undefined') {
+        return "";
+      }
+      return chanLCN[cellvalue];
+    }
+
 
     function fmtTimeStmp(cellvalue, options, rowObject) {
       //console.log("fmtTimeStmp " + cellvalue);
@@ -955,7 +889,174 @@
     var chanURL = [];
     var chanType = [];
 
+    // ColModel definitions for Channel related columns
+    var colChan = [
+      {
+        label: 'Channel Id',
+        name: 'channel-id',
+        hidden: true,
+        width: 120,
+        xmlmap: '[channel]'
+      },
+      {
+        label: 'Icon',
+        name: 'channel-icon',
+        width: 30,
+        sortable: false,
+        colmenu: false,
+        search:false,
+        xmlmap: setChanIcon,
+        //xmlmap: '[channel]'
+      },
+      {
+        label: 'Channel Name',
+        name: 'channel-name',
+        width: 120,
+        xmlmap: setChanName,
+        //xmlmap: '[channel]'
+      },
+      {
+        label: 'LCN',
+        name: 'channel-LCN',
+        width: 60,
+        hidden: true,
+        xmlmap: setChanLCN,
+        //xmlmap: '[channel]'
+      },
+      {
+        label: 'Type',
+        name: 'channel-Type',
+        width: 60,
+        hidden: true,
+        xmlmap: setChanType,
+        //xmlmap: '[channel]'
+      },
+      {
+        label: 'Channel URL',
+        name: 'channel-URL',
+        width: 120,
+        hidden: true,
+        xmlmap: setChanURL,
+        //xmlmap: '[channel]'
+      }
+    ];
 
+
+    // ColModel definitions for Start/Stop?duration columns
+    var colTime=[
+      {
+        label: 'Start',
+        name: 'start',
+        width: 105,
+        hidden: true,
+        formatter: fmtTimeStmp,
+        xmlmap: '[start]'
+      },
+      {
+        label: 'Start Date',
+        name: 'start-date',
+        width: 90,
+        formatter: fmtDate,
+        xmlmap: function(obj) {
+          return $(obj).attr('start').substr(0, 8);
+        }
+      },
+      {
+        label: 'Start Time',
+        name: 'start-time',
+        width: 90,
+        formatter: fmtTime,
+        xmlmap: '[start]'
+      },
+      {
+        label: 'Stop',
+        name: 'stop',
+        width: 105,
+        hidden: true,
+        formatter: fmtTimeStmp,
+        xmlmap: '[stop]'
+      },
+      {
+        label: 'Stop Date',
+        name: 'stop-date',
+        width: 90,
+        hidden: true,
+        formatter: fmtDate,
+        xmlmap: function(obj) {
+          return $(obj).attr('stop').substr(0, 8);
+        }
+      },
+      {
+        label: 'Stop Time',
+        name: 'stop-time',
+        width: 90,
+        hidden: true,
+        formatter: fmtTime,
+        xmlmap: '[stop]'
+      },
+      {
+        label: 'Duration',
+        name: 'duration',
+        width: 90,
+        xmlmap: setDuration,
+        //xmlmap: '[stop]-[start]'
+    }];
+
+    // ColModel definitions for Title and Description columns
+    var colTitle = [{
+      label: 'Title',
+      name: 'title',
+      width: 200,
+      xmlmap: 'title'
+    },
+    {
+      label: 'Description',
+      name: 'desc',
+      width: 200,
+      xmlmap: 'desc'
+    }];
+
+    // ColModel definitions specific to EPG grid
+    var colEPG = [
+      {
+        label: 'Series CRID',
+        name: 'crid',
+        width: 100,
+        xmlmap: 'episode-num'
+      },
+      {
+        label: 'Series Id',
+        name: 'series-id',
+        width: 100,
+        sorttype: "number",
+        formatter: 'integer',
+        hidden: true,
+        formatoptions: {
+          thousandsSeparator: "",
+          defaultValue: ""
+        },
+        align: 'right',
+        xmlmap: 'series-id'
+      },
+      {
+        label: 'RowId',
+        name: 'rowid',
+        width: 70,
+        key: true,
+        hidden: true,
+        xmlmap: 'rowid'
+      },
+      {
+        label: "Actions",
+        name: "actions",
+        colmenu: false,
+        width: 60,
+        search:false,
+        formatter: fmtEPGactions,
+      }
+    ];
+
+    // Test data
     var parser = new DOMParser();
     var testRecList = parser.parseFromString('<?xml version="1.0" encoding="utf-8"?>\
     <record-list>\
