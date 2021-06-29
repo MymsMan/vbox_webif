@@ -23,6 +23,9 @@
 		<title lang="eng">Pointless Celebrities</title>\
 		<desc lang="eng">A comedians edition featuring Sofie Hagen, Jenny Eclair, Cariad Lloyd, Darren Harriott, Nish Kumar, Ed Gamble, Simon Evans and Geoff Norcott. Also in HD. [S]</desc>\
 		<episode-num system="dd_progid">/b-NNCP0</episode-num>\
+		<rating system=”VBOX”>\
+ 			<value>3</value>\
+		</rating>\
 	</programme>\
 	<programme start="20210619173000 +0100" stop="20210619183000 +0100" channel="www.BBC%20TWO.co.un">\
 		<title lang="eng">The Great Northern Garden Build</title>\
