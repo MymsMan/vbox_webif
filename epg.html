@@ -5,9 +5,9 @@
   <!-- The jQuery library is a prerequisite for all jqSuite products -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <!-- This is the Javascript file of jqGrid -->
-  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.4/js/jquery.jqGrid.min.js"></script>
+  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.5/js/jquery.jqGrid.min.js"></script>
   <!-- This is the localization file of the grid controlling messages, labels, etc. -->
-  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.4/js/i18n/grid.locale-en.min.js"></script>
+  <script type="text/ecmascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.5.5/js/i18n/grid.locale-en.min.js"></script>
   <!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -44,6 +44,7 @@
   <button id="seriesExport" hidden>Print</button>
 
   <script type="text/javascript">
+    //jQuery.jgrid.no_legacy_api = true;
     $(document).ready(function() {
       $("#recordingsExport").hide();
       $("#seriesExport").hide();
@@ -69,6 +70,8 @@
             }
           }
       });
+      initRecordingsTable();
+      initEPGTable();
 
       $("#loadChannels").show();
       // Load the Channels list
@@ -78,55 +81,63 @@
           $("#loadChannels").hide();
           if (checkVboxResponse(ChannelList,'#loadChannels',"Load Channels")) {
              initChannelsTable(ChannelList);
-
-              $("#loadRecordings").show();
-              // Load the recordings list
-              $.ajax({
-                url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
-                success: function(recordList) {
-                  $("#loadRecordings").hide();
-                  if (checkVboxResponse(recordList,'#loadRecordings',"Load Recordings")) {
-                     initRecordingsTable(recordList);
-                  }
-                },
-                error: function(xhr) {
-                  $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
-
-                  initRecordingsTable(testRecList);
-                }
-              });
-
-              $("#loadEPG").show();
-              // Load the EPG list
-              $.ajax({
-                url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
-                success: function(epgList) {
-                  $("#loadEPG").hide();
-                  if (checkVboxResponse(epgList,'#loadEPG',"Load EPG")) {
-                     initEPGTable(epgList);
-                  }
-                },
-                error: function(xhr) {
-                  $("#loadEPG").html(alertIcon+" Error loading EPG: "+ xhr.status + " - " + xhr.statusText );
-
-                  initEPGTable(testEPGList);
-                }
-              });
-            }
+             loadRecordings();
+             loadEPG();
+           }
         },
         error: function(xhr) {
           $("#loadChannels").html(alertIcon+" Error loading Channels: "+ xhr.status + " - " + xhr.statusText );
 
           initChannelsTable(testChanList);
-          initRecordingsTable(testRecList);
-          initEPGTable(testEPGList);
+          recordList=testRecList;
+          prepRecordingsTable();
+          epgList=testEPGList;
+          prepEPGTable();
 
         }
         });
       //end of doc ready function
     });
 
-    function initRecordingsTable(recordList) {
+    function loadRecordings() {
+        $("#loadRecordings").show();
+        // Load the recordings list
+        $.ajax({
+          url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+          success: function(recordings) {
+            $("#loadRecordings").hide();
+            if (checkVboxResponse(recordings,'#loadRecordings',"Load Recordings")) {
+               recordList=recordings;
+               prepRecordingsTable();
+            }
+          },
+          error: function(xhr) {
+            $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
+          }
+
+        });
+      }
+
+    function loadEPG() {
+        $("#loadEPG").show();
+        // Load the EPG list
+        $.ajax({
+          url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
+          success: function(epgData) {
+            $("#loadEPG").hide();
+            if (checkVboxResponse(epgData,'#loadEPG',"Load EPG")) {
+              epgList =epgData;
+              prepEPGTable();
+            }
+          },
+          error: function(xhr) {
+            $("#loadEPG").html(alertIcon+" Error loading EPG: "+ xhr.status + " - " + xhr.statusText );
+          }
+        });
+
+    }
+
+    function prepRecordingsTable() {
 
       // Create unique RowId, use negative for external recordings
       var extix = 0;
@@ -146,6 +157,23 @@
           rec.appendChild(rowid).appendChild(rowix);
           //
       }
+
+      reloadRecordingsTable();
+    }
+
+    function reloadRecordingsTable() {
+      $("#recordingsGrid").jqGrid("clearGridData")
+                          .jqGrid('setGridParam', { datatype: "xmlstring", datastr: recordList })
+                          .trigger('reloadGrid', [{ current:true}])
+                          .jqGrid('sortGrid','start', true, 'desc');
+
+      $("#seriesGrid").jqGrid("clearGridData")
+                          .jqGrid('setGridParam', { datatype: "xmlstring", datastr: recordList })
+                          .trigger('reloadGrid', [{ current:true}])
+                          .jqGrid('sortGrid', 'current-start', true, 'desc');
+    }
+
+    function initRecordingsTable() {
 
       //  Recordings Grid
       var recColModel = colChan.concat(colRecChan,colTitle,colTime,colRec);
@@ -171,8 +199,6 @@
           caption: "Recordings"
         })
         .jqGrid('hideCol','channel-name')
-      //.jqGrid('setColProp','channel-name',{hidden:true})
-        .jqGrid('sortGrid','start', true, 'desc')
         .jqGrid('filterToolbar',{searchOperators: true})
         .navGrid('#recordingsGridPager', {
           edit: false,
@@ -210,7 +236,6 @@
           sortorder: "desc",
           caption: "Series recording schedule"
         })
-        .jqGrid('sortGrid', 'current-start', true, 'desc')
         .jqGrid('filterToolbar',{searchOperators: true})
         .navGrid('#seriesGridPager', {
           edit: false,
@@ -254,7 +279,7 @@
       // end initChannelsTable
     }
 
-    function initEPGTable(epgList) {
+    function prepEPGTable() {
 
       // Create unique RowId, epgnnnn
       var extix = 0;
@@ -269,7 +294,18 @@
           rec.appendChild(rowid).appendChild(rowix);
           //
       }
+      reloadEPGTable();
+    }
 
+    function reloadEPGTable() {
+
+      $("#epgGrid").jqGrid("clearGridData")
+                          .jqGrid('setGridParam', { datatype: "xmlstring", datastr: epgList })
+                          .trigger('reloadGrid', [{ current:true}])
+                          .jqGrid('sortGrid', 'start', true, 'asc');
+    }
+
+    function initEPGTable() {
       var epgColModel = colChan.concat(colEPGtitle,colTime,colEPG);
       //  epg Grid
       $("#epgGrid").jqGrid({
@@ -293,7 +329,6 @@
           sortorder: "desc",
           caption: "EPG"
         })
-        .jqGrid('sortGrid','start', true, 'asc')
         .jqGrid('filterToolbar',{searchOperators: true})
         .navGrid('#epgGridPager', {
           edit: false,
@@ -554,11 +589,9 @@
       return text;
     }
 
-    function fmtEPGactions(cellvalue, options, rowObject) {
-      //console.log("fmtSize " + cellvalue);
-      //var rowid=$(rowObject).attr('rowid');
-      var rowid=options.rowId;
-      var grid=options.gid;
+    function setEPGactions(rowObject) {
+      var rowid = rowObject.getElementsByTagName("rowid")[0].childNodes[0].nodeValue;
+
       var text =  "<div id='msg"+rowid+"' hidden width=150></div>";
       text +=  fmtButton("#epgGrid",rowid,'viewRow','View row details','fa fa-eye',{});
       var opts ={};
@@ -589,49 +622,53 @@
     }
 
 
-    function fmtRecActions(cellvalue, options, rowObject) {
-      //console.log("fmtSize " + cellvalue);
-      var rowid=$(rowObject).attr('rowid');
+    function setRecActions(rowObject) {
+      var rowid = rowObject.getElementsByTagName("rowid")[0].childNodes[0].nodeValue;
+      var state = rowObject.getElementsByTagName("state")[0].childNodes[0].nodeValue;
+      if (state != "External") {
+        var recid = rowObject.getElementsByTagName("record-id")[0].childNodes[0].nodeValue;
+      }
       var text =  "<div id='msg"+rowid+"' hidden width=150></div>";
       text +=  fmtButton("#recordingsGrid",rowid,'viewRow','View row details','fa fa-eye',{});
       var opts ={};
-      var state=$(rowObject).attr('state');
+      var butLabel="";
       switch (state) {
         case "scheduled":
-          if (typeof $(rowObject).attr('series-id') != 'undefined') {
+          if (rowObject.getElementsByTagName("series-id").length == 0) {
             // Can't delete series episode, must choose series table
             return text;
           }
         case "recording":
-          opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+rowid;
+          butLabel="Cancel recording";
+          opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+recid;
           break;
         case "recorded":
         case "Error":
-          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID="+rowid;
+          butLabel="Delete recording";
+          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID="+recid;
           break;
         case "External":
+          butLabel="Delete external recording";
           opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
           break;
         default:
           return text;
       }
-      text +=  fmtButton("#recordingsGrid",rowid,'delRecord','Delete recording','ui-icon ui-icon-trash',opts)
+      text +=  fmtButton("#recordingsGrid",rowid,'delRecord',butLabel,'ui-icon ui-icon-trash',opts)
 
       //console.log(cellvalue + " = " + text)
       return text;
     }
 
-    function fmtSerActions(cellvalue, options, rowObject) {
-      //console.log("fmtSize " + cellvalue);
-      var id=$(rowObject).attr('series-id')
-      //var text =  "";
+    function setSerActions(rowObject) {
+      var serid =$(rowObject).attr('series-id');
+      var rowid=serid;
       var opts = {};
-      if (typeof $(rowObject).attr('record-id') != 'undefined') {
-        opts.recordid = $(rowObject).attr('record-id');
-      }
-      var text =  "<div id='msg"+id+"' hidden width=50></div>";
-      text +=  fmtButton("#seriesGrid",id,'viewRow','View row details','fa fa-eye',{});
-      text +=  fmtButton("#seriesGrid",id,'delSeries','Cancel series recording','ui-icon ui-icon-trash',opts);
+
+      opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+serid;
+      var text =  "<div id='msg"+rowid+"' hidden width=50></div>";
+      text +=  fmtButton("#seriesGrid",rowid,'viewRow','View row details','fa fa-eye',{});
+      text +=  fmtButton("#seriesGrid",rowid,'delRecord','Cancel series recording','ui-icon ui-icon-trash',opts);
 
       //console.log(cellvalue + " = " + text)
       return text;
@@ -673,7 +710,9 @@
         success: function(response) {
           if (checkVboxResponse(response,"#msg"+id,ident)) {
              // Delete grid row;
-             $(grid).jqGrid("delRowData",id);
+             //$(grid).jqGrid("delRowData",id);
+             // Reload recordings
+             loadRecordings();
           }
         },
         error: function(xhr) {
@@ -683,7 +722,14 @@
       });
     }
 
+    // Icons
     var alertIcon = '<i class="fa fa-exclamation-triangle" style="font-size:16px;color:red"></i>';
+    var loadIcon = '<i class="fa fa-refresh fa-spin" style="font-size:16px;color:green"></i>';
+
+    // define variable to hold recordings, epg, and channel data
+    var recordList;
+    var epgList;
+
     var chanName = [];
     var chanIcon = [];
     var chanLCN = [];
@@ -747,7 +793,6 @@
         //xmlmap: '[channel]'
       }
     ];
-
 
     // ColModel definitions for Start/Stop?duration columns
     var colTime=[
@@ -904,7 +949,7 @@
         colmenu: false,
         width: 60,
         search:false,
-        formatter: fmtEPGactions,
+        xmlmap: setEPGactions,
       }
     ];
 
@@ -937,8 +982,7 @@
         label: 'Error desc',
         name: 'error-description',
         tooltip: 'Error description (if State=Error)',
-        hidden: true,
-        width: 100,
+        width: 120,
         xmlmap: 'error-description'
       },
       {
@@ -1014,7 +1058,7 @@
         colmenu: false,
         width: 60,
         search:false,
-        formatter: fmtRecActions,
+        xmlmap: setRecActions,
       }
     ];
 
@@ -1136,7 +1180,7 @@
         width: 60,
         search:false,
         colmenu: false,
-        formatter: fmtSerActions,
+        xmlmap: setSerActions
       }
     ];
 
