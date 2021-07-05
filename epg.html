@@ -18,6 +18,10 @@
   <title>Vbox recordings</title>
   <style>
   /* .ui-jqdialog-content .form-view-data { */
+  .record-red {
+    font-size:12px;
+    color:red;
+  }
   .ui-jqgrids-labels .ui-sortable th,
   #v_programme-desc, #v_programme-title, #v_desc, #v_title {
     white-space: normal;
@@ -76,17 +80,17 @@
       $("#loadChannels").show();
       // Load the Channels list
       $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvChannelsList&FromChIndex=FirstChannel&ToChIndex=LastChannel&Externals=YES",
+        url: urlPfx+"Method=GetXmltvChannelsList&FromChIndex=FirstChannel&ToChIndex=LastChannel&Externals=YES",
         success: function(ChannelList) {
           $("#loadChannels").hide();
           if (checkVboxResponse(ChannelList,'#loadChannels',"Load Channels")) {
              initChannelsTable(ChannelList);
              loadRecordings();
-             loadEPG();
+             loadEPG(fullEPG);
            }
         },
         error: function(xhr) {
-          $("#loadChannels").html(alertIcon+" Error loading Channels: "+ xhr.status + " - " + xhr.statusText );
+          ajaxError(xhr,"#loadChannels","Error loading Channels");
 
           initChannelsTable(testChanList);
           recordList=testRecList;
@@ -103,7 +107,7 @@
         $("#loadRecordings").show();
         // Load the recordings list
         $.ajax({
-          url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList&Externals=YES",
+          url: urlPfx+"Method=GetRecordsList&Externals=YES",
           success: function(recordings) {
             $("#loadRecordings").hide();
             if (checkVboxResponse(recordings,'#loadRecordings',"Load Recordings")) {
@@ -112,17 +116,17 @@
             }
           },
           error: function(xhr) {
-            $("#loadRecordings").html(alertIcon+" Error loading recordings: "+ xhr.status + " - " + xhr.statusText );
+            ajaxError(xhr,"#loadRecordings","Error loading Recordings");
           }
 
         });
       }
 
-    function loadEPG() {
+    function loadEPG(url) {
         $("#loadEPG").show();
         // Load the EPG list
         $.ajax({
-          url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetXmltvSection&FromChIndex=1&ToChIndex=2",
+          url: urlPfx+url,
           success: function(epgData) {
             $("#loadEPG").hide();
             if (checkVboxResponse(epgData,'#loadEPG',"Load EPG")) {
@@ -131,7 +135,7 @@
             }
           },
           error: function(xhr) {
-            $("#loadEPG").html(alertIcon+" Error loading EPG: "+ xhr.status + " - " + xhr.statusText );
+            ajaxError(xhr,"#loadEPF","Error loading EPG");
           }
         });
 
@@ -178,7 +182,6 @@
       //  Recordings Grid
       var recColModel = colChan.concat(colRecChan,colTitle,colTime,colRec);
       $("#recordingsGrid").jqGrid({
-          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
           datatype: "xmlstring",
           datastr: recordList,
           colModel: recColModel,
@@ -217,7 +220,6 @@
       // Series Grid
       var serColModel = colChan.concat(colTitle,colSer);
       $("#seriesGrid").jqGrid({
-          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetRecordsList',
           datatype: "xmlstring",
           datastr: recordList,
           colModel: serColModel,
@@ -309,7 +311,6 @@
       var epgColModel = colChan.concat(colEPGtitle,colTime,colEPG);
       //  epg Grid
       $("#epgGrid").jqGrid({
-          //url: '../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=GetepgsList',
           datatype: "xmlstring",
           datastr: epgList,
           colModel: epgColModel,
@@ -350,7 +351,13 @@
       var ErrDesc = vboxdat.getElementsByTagName("ErrorDescription")[0].childNodes[0].nodeValue;
       $(divlabel).html(alertIcon+" "+ident+" Vbox response: "+ ErrCode + " - " + ErrDesc ).show();
       alert(ident+" Vbox response: "+ ErrCode + " - " + ErrDesc );
+      console.log(divlabel +" "+ ident+" Vbox response: "+ ErrCode + " - " + ErrDesc );
       return false;
+    }
+
+    function ajaxError(xhr, divlabel, ident = ""){
+      $(divlabel).html(alertIcon+" "+ident+", code: "+ xhr.status + " - " + xhr.statusText ).show();
+      console.log(divlabel+" "+ident+", code: "+ xhr.status + " - " + xhr.statusText)
     }
 
     /**
@@ -576,9 +583,13 @@
       return text;
     }
 
-    function fmtButton(grid,id,funcName,title,icon,opts = {}){
-      var text = '<div title="##title##" style="float:left;" class="ui-pg-div" id="##funcName##_##id##" onclick=\'##funcName##(\"##grid##\","##id##",##opts##);\' onmouseover="jQuery(this).addClass(\'ui-state-hover\');" onmouseout="jQuery(this).removeClass(\'ui-state-hover\');"><span class="##icon##"></span></div>';
-      text=text.replace(/##title##/g,title);
+    // Create a button for the Actions column
+    function fmtButton(grid,id,funcName,label,icon,opts = {}){
+      var text = '<div title="##label##" style="float:left;" class="ui-pg-div" id="##funcName##_##id##" \
+          onclick=\'##funcName##(\"##grid##\","##id##","##label##",##opts##);\' \
+          onmouseover="jQuery(this).addClass(\'ui-state-hover\');" \
+          onmouseout="jQuery(this).removeClass(\'ui-state-hover\');"><span class="##icon##"></span></div>';
+      text=text.replace(/##label##/g,label);
       text=text.replace(/##id##/g,id);
       text=text.replace(/##funcName##/g,funcName);
       text=text.replace(/##icon##/g,icon);
@@ -595,6 +606,8 @@
       var text =  "<div id='msg"+rowid+"' hidden width=150></div>";
       text +=  fmtButton("#epgGrid",rowid,'viewRow','View row details','fa fa-eye',{});
       var opts ={};
+      text +=  fmtButton("#epgGrid",rowid,'schedRecord','Schedule Recording','fa fa-circle record-red',{});
+
       var state=$(rowObject).attr('state');
       switch (state) {
         case "scheduled":
@@ -603,19 +616,19 @@
             return text;
           }
         case "recording":
-          opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+rowid;
+          opts.procurl = "Method=CancelRecord&RecordID="+rowid;
           break;
         case "recorded":
         case "Error":
-          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID="+rowid;
+          opts.procurl = "Method=DeleteRecord&RecordID="+rowid;
           break;
         case "External":
-          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
+          opts.procurl = "Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
           break;
         default:
           return text;
       }
-      text +=  fmtButton("#epgGrid",rowid,'delRecord','Delete recording','ui-icon ui-icon-trash',opts)
+      text +=  fmtButton("#epgGrid",rowid,'procRecord','Delete recording','ui-icon ui-icon-trash',opts)
 
       //console.log(cellvalue + " = " + text)
       return text;
@@ -640,21 +653,21 @@
           }
         case "recording":
           butLabel="Cancel recording";
-          opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+recid;
+          opts.procurl = "Method=CancelRecord&RecordID="+recid;
           break;
         case "recorded":
         case "Error":
           butLabel="Delete recording";
-          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID="+recid;
+          opts.procurl = "Method=DeleteRecord&RecordID="+recid;
           break;
         case "External":
           butLabel="Delete external recording";
-          opts.delurl = "OPTION=1&Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
+          opts.procurl = "Method=DeleteRecord&RecordID=External&FileName="+$(rowObject).attr('LocalTarget');
           break;
         default:
           return text;
       }
-      text +=  fmtButton("#recordingsGrid",rowid,'delRecord',butLabel,'ui-icon ui-icon-trash',opts)
+      text +=  fmtButton("#recordingsGrid",rowid,'procRecord',butLabel,'ui-icon ui-icon-trash',opts)
 
       //console.log(cellvalue + " = " + text)
       return text;
@@ -665,58 +678,37 @@
       var rowid=serid;
       var opts = {};
 
-      opts.delurl = "OPTION=1&Method=CancelRecord&RecordID="+serid;
+      opts.procurl = "Method=CancelRecord&RecordID="+serid;
       var text =  "<div id='msg"+rowid+"' hidden width=50></div>";
       text +=  fmtButton("#seriesGrid",rowid,'viewRow','View row details','fa fa-eye',{});
-      text +=  fmtButton("#seriesGrid",rowid,'delRecord','Cancel series recording','ui-icon ui-icon-trash',opts);
+      text +=  fmtButton("#seriesGrid",rowid,'procRecord','Cancel series recording','ui-icon ui-icon-trash',opts);
 
       //console.log(cellvalue + " = " + text)
       return text;
     }
 
-    function viewRow(grid, rowid, opts ={}) {
+    function viewRow(grid, rowid, label, opts ={}) {
        $(grid).jqGrid('viewGridRow',rowid,{modal:true,closeOnEscape:true,viewhidden:true});
     };
 
-    function delSeries(grid, id, opts ={}) {
-      console.log("delSeries " + id + ", "+grid +", "+ JSON.stringify(opts));
+    function schedRecord(grid, rowid, label, opts ={}) {
+       //$(grid).jqGrid('viewGridRow',rowid,{modal:true,closeOnEscape:true,viewhidden:true});
+    };
 
-      var ident = "Error deleting";
+    function procRecord(grid, id, label, opts ={}) {
+      console.log("procRecord " + label + " " + id + ", "+grid +", "+ JSON.stringify(opts));
+      var procurl = opts.procurl
+      var ident = "Error " + label;
       $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?OPTION=1&Method=CancelRecord&RecordID="+id,
+        url: urlPfx+procurl,
         success: function(response) {
           if (checkVboxResponse(response,"#msg"+id,ident)) {
-             // Delete grid row;
-             if (typeof opts.recordid != 'undefined') {
-               $("#recordingsGrid").jqGrid("delRowData",opts.recordid);
-             }
-             $(grid).jqGrid("delRowData",id);
-          }
-        },
-        error: function(xhr) {
-          $("#msg"+id).html(alertIcon+" "+ident+", code: "+ xhr.status + " - " + xhr.statusText ).show();
-          alert(ident+", code: "+ xhr.status + " - " + xhr.statusText );
-        }
-      });
-      //console.log("delSeries " + id + grid + opts);
-    }
-
-    function delRecord(grid, id, opts ={}) {
-      console.log("delRecord " + id + ", "+grid +", "+ JSON.stringify(opts));
-      var delurl = opts.delurl
-      var ident = "Error deleting";
-      $.ajax({
-        url: "../cgi-bin/HttpControl/HttpControlApp?"+delurl,
-        success: function(response) {
-          if (checkVboxResponse(response,"#msg"+id,ident)) {
-             // Delete grid row;
-             //$(grid).jqGrid("delRowData",id);
              // Reload recordings
              loadRecordings();
           }
         },
         error: function(xhr) {
-          $("#msg"+id).html(alertIcon+" "+ident+", code: "+ xhr.status + " - " + xhr.statusText ).show();
+          ajaxError(xhr,"#msg"+id,ident);
           alert(ident+", code: "+ xhr.status + " - " + xhr.statusText );
         }
       });
@@ -770,6 +762,8 @@
         name: 'channel-LCN',
         tooltip: 'Local channel number, derived from channel-id',
         width: 60,
+        sorttype: "number",
+        formatter: 'integer',
         hidden: true,
         xmlmap: setChanLCN,
         //xmlmap: '[channel]'
@@ -857,6 +851,7 @@
         tooltip: 'Programme length (stop - start)',
         name: 'duration',
         width: 50,
+        sorttype: "number",
         xmlmap: setDuration,
         //xmlmap: '[stop]-[start]'
     }];
@@ -982,7 +977,7 @@
         label: 'Error desc',
         name: 'error-description',
         tooltip: 'Error description (if State=Error)',
-        width: 120,
+        width: 150,
         xmlmap: 'error-description'
       },
       {
@@ -1184,6 +1179,9 @@
       }
     ];
 
+    const urlPfx="../cgi-bin/HttpControl/HttpControlApp?OPTION=1&";
+    const BBC12="Method=GetXmltvSection&FromChIndex=1&ToChIndex=2"
+    const fullEPG="Method=GetXmltvEntireFile&FilterBy=TVOnly";
 
     // Test data
     var parser = new DOMParser();
