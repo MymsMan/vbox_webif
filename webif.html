@@ -127,8 +127,23 @@
         altRows: true,
         responsive: true,
         autowidth: true,
+        forceFit: true,
         sortable: true,
         colMenu: true,
+        colMenuColumnDone: function(cols,column,checked) {
+          console.log("colMenuColumnDone "+column+" checked: "+checked);
+          if (column!="") {
+            if (checked) {
+              $(this).jqGrid("showCol",column).jqGrid("resizeGrid",500,true,false);
+            } else {
+              $(this).jqGrid("hideCol",column).jqGrid("resizeGrid",500,true,false);
+            }
+          }
+        },
+//        resizeStop: function(size,ix) {
+//          console.log("resizeStop size: "+size+" ix: "+ix);
+//          $(this).jqGrid("resizeColumn",ix,size,true).jqGrid("resizeGrid",500,true,false);
+//        },
         headertitles: true,
         rowNum: 25,
         rowList: [10, 25, 50, 100, 150, 200, 250, 300],
